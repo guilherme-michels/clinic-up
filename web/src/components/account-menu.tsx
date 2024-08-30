@@ -1,5 +1,5 @@
 import { Building, ChevronDown, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { trpc } from "../lib/trpc";
 
 import { Button } from "./ui/button";
@@ -64,7 +64,7 @@ export function AccountMenu() {
 					<DialogTrigger asChild>
 						<DropdownMenuItem>
 							<Building className="mr-2 h-4 w-4" />
-							<span>Perfil da organização</span>
+							<Link to="minha-clinica">Perfil da organização</Link>
 						</DropdownMenuItem>
 					</DialogTrigger>
 					<DropdownMenuItem

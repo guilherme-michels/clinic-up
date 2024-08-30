@@ -226,8 +226,6 @@ const authRouter = router({
 				},
 			);
 
-			console.log("entrou aqui2");
-
 			return {
 				token,
 				user: {

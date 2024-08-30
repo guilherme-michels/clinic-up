@@ -32,8 +32,8 @@ export function App() {
 		<trpc.Provider client={trpcClient} queryClient={queryClient}>
 			<QueryClientProvider client={queryClient}>
 				<HelmetProvider>
-					<ThemeProvider defaultTheme="light" storageKey="clinicas-theme">
-						<Helmet titleTemplate="%s | Clinicas" />
+					<ThemeProvider defaultTheme="light" storageKey="clinicup-theme">
+						<Helmet titleTemplate="%s | Clinic Up" />
 						<Toaster richColors />
 						<AuthProvider>
 							<RouterProvider router={router} />

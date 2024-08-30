@@ -7,6 +7,12 @@ import { NotFound } from "./pages/404";
 import { SignUp } from "./pages/auth/SignUp";
 import { SignIn } from "./pages/auth/SignIn";
 import { Home } from "./pages/app/home/home";
+import { Dashboard } from "./pages/app/dashboard/dashboard";
+import { Patients } from "./pages/app/patients/patients";
+import { Calendar } from "./pages/app/calendar/calendar";
+import { Marketing } from "./pages/app/marketing/marketing";
+import { Team } from "./pages/app/team/team";
+import { Clinic } from "./pages/app/clinic/clinic";
 
 export const router = createBrowserRouter([
 	{
@@ -15,8 +21,32 @@ export const router = createBrowserRouter([
 		errorElement: <ErrorPage />,
 		children: [
 			{
-				path: "/",
+				path: "/pagina-inicial",
 				element: <Home />,
+			},
+			{
+				path: "/analise-dados",
+				element: <Dashboard />,
+			},
+			{
+				path: "/pacientes",
+				element: <Patients />,
+			},
+			{
+				path: "/agenda",
+				element: <Calendar />,
+			},
+			{
+				path: "/marketing",
+				element: <Marketing />,
+			},
+			{
+				path: "/equipe",
+				element: <Team />,
+			},
+			{
+				path: "/minha-clinica",
+				element: <Clinic />,
 			},
 		],
 	},

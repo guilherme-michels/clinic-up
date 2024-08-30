@@ -1,13 +1,27 @@
 import { Helmet } from "react-helmet-async";
+import { CalendarCard } from "./cards/calendar-card";
+import { PatientCard } from "./cards/patient-card";
+import { FinancialCard } from "./cards/financial-card";
+import { CustomerSatisfactionCard } from "./cards/customer-satisfaction-card";
 
 export function Home() {
 	return (
 		<>
 			<Helmet title="Home" />
 			<div className="flex flex-col gap-4">
-				<h1 className="text-3xl font-bold tracking-tight">Teste</h1>
+				<h1 className="text-xl sm:text-3xl font-bold tracking-tight">
+					Página inicial
+				</h1>
 
-				<div className="grid grid-cols-4 gap-4">teste</div>
+				<div className="grid lg:grid-cols-2 gap-4 justify-center">
+					<CalendarCard />
+					<PatientCard />
+					<FinancialCard />
+				</div>
+
+				<div className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+					<CustomerSatisfactionCard />
+				</div>
 			</div>
 		</>
 	);

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ export function SignIn() {
 	async function handleSignIn(data: SignInForm) {
 		try {
 			await signIn(data.email, data.password);
+			toast.success("Bem vindo!");
 			navigate("/");
 		} catch (error) {
 			console.error("Erro ao fazer login:", error);
