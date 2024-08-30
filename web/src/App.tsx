@@ -6,11 +6,14 @@ import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useState } from "react";
 import { httpBatchLink } from "@trpc/client";
-import { trpc } from "./lib/trpc";
 
 import { ThemeProvider } from "./components/theme/theme-provider";
 import { router } from "./routes";
 import { AuthProvider } from "./context/AuthContext";
+import type { AppRouter } from "../../server/src/index";
+import { createTRPCReact } from "@trpc/react-query";
+
+export const trpc = createTRPCReact<AppRouter>();
 
 export function App() {
 	const [queryClient] = useState(() => new QueryClient());

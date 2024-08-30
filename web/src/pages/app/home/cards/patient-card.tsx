@@ -40,12 +40,12 @@ const StatItem: React.FC<StatItemProps> = ({ icon, label, value, onClick }) => (
 		onClick={onClick}
 	>
 		<div className="flex items-center space-x-2 justify-between w-full">
-			<p className="font-medium flex gap-2 items-center">
+			<p className="flex gap-2 items-center font-thin">
 				{icon}
 				{label}
 			</p>
 			<div>
-				<p className="text-xl font-bold flex items-center gap-4">
+				<p className="text-base flex items-center gap-4">
 					{value}
 					<ChevronRight className="h-4 w-4 text-muted-foreground" />
 				</p>

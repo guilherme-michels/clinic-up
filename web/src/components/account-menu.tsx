@@ -1,6 +1,5 @@
 import { Building, ChevronDown, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { trpc } from "../lib/trpc";
 
 import { Button } from "./ui/button";
 import { Dialog, DialogTrigger } from "./ui/dialog";
@@ -14,6 +13,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
 import { useAuth } from "@/context/AuthContext";
+import { trpc } from "@/App";
 
 export function AccountMenu() {
 	const navigate = useNavigate();

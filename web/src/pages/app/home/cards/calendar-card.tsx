@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Calendar, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HomeCardSkeleton } from "./home-card-skeleton";
@@ -15,7 +15,8 @@ const upcomingAppointments = [
 	{
 		id: 2,
 		title: "Entrega do projeto",
-		description: "Confraternização mensal no restaurante Y",
+		description:
+			"Confraternização mensal no restaurante Y. Confraternização mensal no restaurante Y",
 		date: "2023-06-17T09:00:00",
 	},
 	{
@@ -24,10 +25,44 @@ const upcomingAppointments = [
 		description: "Confraternização mensal no restaurante Y",
 		date: "2023-06-18T12:30:00",
 	},
+	{
+		id: 4,
+		title: "Reunião com cliente",
+		description: "Finalização e apresentação do projeto X",
+		date: "2023-06-15T14:00:00",
+	},
+	{
+		id: 5,
+		title: "Entrega do projeto",
+		description:
+			"Confraternização mensal no restaurante Y. Confraternização mensal no restaurante Y",
+		date: "2023-06-17T09:00:00",
+	},
+	{
+		id: 6,
+		title: "Almoço de equipe",
+		description: "Confraternização mensal no restaurante Y",
+		date: "2023-06-18T12:30:00",
+	},
 ];
+
+function useWindowSize() {
+	const [size, setSize] = useState([0, 0]);
+	useEffect(() => {
+		function updateSize() {
+			setSize([window.innerWidth, window.innerHeight]);
+		}
+		window.addEventListener("resize", updateSize);
+		updateSize();
+		return () => window.removeEventListener("resize", updateSize);
+	}, []);
+	return size;
+}
 
 export function CalendarCard() {
 	const [isLoading, setIsLoading] = useState(true);
+	const [width] = useWindowSize();
+	const [maxDescriptionLength, setMaxDescriptionLength] = useState(0);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -36,6 +71,11 @@ export function CalendarCard() {
 
 		return () => clearTimeout(timer);
 	}, []);
+
+	useEffect(() => {
+		const newMaxLength = Math.max(30, Math.floor(width / 26));
+		setMaxDescriptionLength(newMaxLength);
+	}, [width]);
 
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
@@ -51,6 +91,14 @@ export function CalendarCard() {
 		console.log(`Compromisso ${id} clicado`);
 	};
 
+	const truncateDescription = useCallback(
+		(description: string) => {
+			if (description.length <= maxDescriptionLength) return description;
+			return `${description.slice(0, maxDescriptionLength)}...`;
+		},
+		[maxDescriptionLength],
+	);
+
 	return (
 		<Card className="max-h-[400px] flex flex-col">
 			<CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
@@ -58,7 +106,7 @@ export function CalendarCard() {
 
 				<Calendar className="h-4 w-4 text-muted-foreground" />
 			</CardHeader>
-			<CardContent className="overflow-y-auto flex-grow space-y-4">
+			<CardContent className="flex-grow overflow-y-auto space-y-4">
 				{!isLoading ? (
 					<ul className="space-y-4">
 						{upcomingAppointments.map((appointment) => (
@@ -68,16 +116,16 @@ export function CalendarCard() {
 									className="w-full justify-start text-left hover:bg-muted/50 p-3"
 									onClick={() => handleAppointmentClick(appointment.id)}
 								>
-									<div className="flex items-center w-full">
-										<div className="flex-grow mr-4">
-											<span className="font-medium block">
+									<div className="flex items-start w-full">
+										<div className="flex-grow">
+											<span className="font-medium block mb-1 ">
 												{appointment.title}
 											</span>
-											<span className="text-xs text-muted-foreground block truncate">
-												{appointment.description}
+											<span className="text-xs text-muted-foreground block">
+												{truncateDescription(appointment.description)}
 											</span>
 										</div>
-										<div className="flex flex-col items-end min-w-[80px]">
+										<div className="flex flex-col items-end min-fit shrink-0">
 											<span className="text-xs text-muted-foreground whitespace-nowrap">
 												{formatDate(appointment.date)}
 											</span>

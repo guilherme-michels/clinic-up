@@ -53,15 +53,18 @@ export const columns: ColumnDef<User>[] = [
 	{
 		id: "avatar",
 		cell: ({ row }) => (
-			<Avatar className="size-8">
-				{/* biome-ignore lint/style/noNonNullAssertion: <explanation> */}
-				<AvatarImage src={row.original.avatarUrl!} alt={row.original.name!} />
-				<AvatarFallback>{row.original.name?.charAt(0)}</AvatarFallback>
-			</Avatar>
+			<div className="w-full items-center justify-center flex">
+				<Avatar className="size-8">
+					<AvatarImage
+						src={row.original.avatarUrl || undefined}
+						alt={row.original.name || ""}
+					/>
+					<AvatarFallback>{row.original.name?.charAt(0)}</AvatarFallback>
+				</Avatar>
+			</div>
 		),
 		enableSorting: false,
 		enableHiding: false,
-		size: 12,
 	},
 	{
 		accessorKey: "name",
@@ -182,7 +185,15 @@ export function PatientListWeb() {
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead key={header.id}>
+										<TableHead
+											key={header.id}
+											className={
+												header.column.id === "avatar" ||
+												header.column.id === "actions"
+													? "w-12 max-w-12"
+													: ""
+											}
+										>
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -203,7 +214,15 @@ export function PatientListWeb() {
 									data-state={row.getIsSelected() && "selected"}
 								>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
+										<TableCell
+											key={cell.id}
+											className={
+												cell.column.id === "avatar" ||
+												cell.column.id === "actions"
+													? "w-16 max-w-16"
+													: ""
+											}
+										>
 											{flexRender(
 												cell.column.columnDef.cell,
 												cell.getContext(),

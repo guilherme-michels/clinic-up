@@ -13,7 +13,7 @@ export function Home() {
 					Página inicial
 				</h1>
 
-				<div className="grid lg:grid-cols-2 gap-4 justify-center">
+				<div className="grid lg:grid-cols-2 gap-4 ">
 					<CalendarCard />
 					<PatientCard />
 					<FinancialCard />
