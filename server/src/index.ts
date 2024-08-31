@@ -99,6 +99,22 @@ const organizationRouter = router({
 		.mutation(async ({ input }) => {
 			return prisma.organization.delete({ where: { id: input } });
 		}),
+
+	getCurrentUserOrganization: protectedProcedure.query(async ({ ctx }) => {
+		const member = await prisma.member.findFirst({
+			where: { userId: ctx.user.id },
+			include: { organization: true },
+		});
+
+		if (!member) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Organização não encontrada para o usuário atual.",
+			});
+		}
+
+		return member.organization;
+	}),
 });
 
 // Rotas para Member

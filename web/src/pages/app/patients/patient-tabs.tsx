@@ -1,11 +1,16 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
 
 export function PatientTabs() {
 	return (
-		<Tabs defaultValue="account" className="w-full">
+		<Tabs defaultValue="lista" className="w-full">
 			<TabsList>
-				<TabsTrigger value="account">Lista</TabsTrigger>
-				<TabsTrigger value="password">Cadastro</TabsTrigger>
+				<TabsTrigger value="lista" asChild>
+					<Link to="/pacientes">Lista</Link>
+				</TabsTrigger>
+				<TabsTrigger value="cadastro" asChild>
+					<Link to="cadastro">Cadastro</Link>
+				</TabsTrigger>
 			</TabsList>
 		</Tabs>
 	);

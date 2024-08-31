@@ -62,10 +62,12 @@ export function AccountMenu() {
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<DialogTrigger asChild>
-						<DropdownMenuItem>
-							<Building className="mr-2 h-4 w-4" />
-							<Link to="minha-clinica">Perfil da organização</Link>
-						</DropdownMenuItem>
+						<Link to="minha-clinica">
+							<DropdownMenuItem>
+								<Building className="mr-2 h-4 w-4" />
+								Perfil da organização
+							</DropdownMenuItem>
+						</Link>
 					</DialogTrigger>
 					<DropdownMenuItem
 						asChild

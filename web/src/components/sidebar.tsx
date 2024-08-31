@@ -8,7 +8,7 @@ import {
 	BadgeDollarSign,
 	FileSliders,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import {
 	Tooltip,
@@ -35,13 +35,20 @@ interface MenuItem {
 	link: string;
 }
 
-const TooltipItem: React.FC<MenuItem> = ({ name, icon, link }) => (
+const TooltipItem: React.FC<MenuItem & { isActive: boolean }> = ({
+	name,
+	icon,
+	link,
+	isActive,
+}) => (
 	<TooltipProvider>
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<Link
 					to={link}
-					className="flex w-full items-center ml-12 rounded-lg text-foreground transition-all hover:opacity-80"
+					className={`flex w-full items-center px-2 rounded-lg text-foreground transition-all hover:opacity-80 h-8 ${
+						isActive ? "bg-foreground text-muted font-semibold" : ""
+					}`}
 				>
 					{icons[icon]}
 					<span className="ml-2 text-sm">{name}</span>
@@ -53,6 +60,7 @@ const TooltipItem: React.FC<MenuItem> = ({ name, icon, link }) => (
 );
 
 export const Sidebar: React.FC = () => {
+	const location = useLocation();
 	const menuItems: MenuItem[] = [
 		{
 			name: "Página inicial",
@@ -99,13 +107,20 @@ export const Sidebar: React.FC = () => {
 
 	return (
 		<aside className="fixed inset-y-0 left-0 hidden w-48 flex-col border-r bg-mesBlue sm:flex z-0 mt-16">
-			<nav className="flex flex-col items-center gap-3 sm:py-5">
+			<nav className="flex flex-col items-center gap-1 sm:py-5 px-2">
 				{menuItems.slice(0, -1).map((item) => (
-					<TooltipItem key={item.name} {...item} />
+					<TooltipItem
+						key={item.name}
+						{...item}
+						isActive={location.pathname === item.link}
+					/>
 				))}
 			</nav>
-			<nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-				<TooltipItem {...menuItems[menuItems.length - 1]} />
+			<nav className="mt-auto flex flex-col items-center gap-4 px-1 sm:py-5">
+				<TooltipItem
+					{...menuItems[menuItems.length - 1]}
+					isActive={location.pathname === menuItems[menuItems.length - 1].link}
+				/>
 			</nav>
 		</aside>
 	);

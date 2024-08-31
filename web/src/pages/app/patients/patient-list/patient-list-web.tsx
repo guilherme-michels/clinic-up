@@ -35,7 +35,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { User } from "../../../../../../../data/schemas";
+import type { User } from "../../../../../../data/schemas";
 
 const users: User[] = [
 	{
@@ -104,7 +104,6 @@ export const columns: ColumnDef<User>[] = [
 						>
 							Testando
 						</DropdownMenuItem>
-						<DropdownMenuSeparator />
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);

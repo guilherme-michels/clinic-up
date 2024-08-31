@@ -13,6 +13,7 @@ import { Calendar } from "./pages/app/calendar/calendar";
 import { Marketing } from "./pages/app/marketing/marketing";
 import { Team } from "./pages/app/team/team";
 import { Clinic } from "./pages/app/clinic/clinic";
+import { PatientForm } from "./pages/app/patients/patient-form";
 
 export const router = createBrowserRouter([
 	{
@@ -31,6 +32,12 @@ export const router = createBrowserRouter([
 			{
 				path: "/pacientes",
 				element: <Patients />,
+				children: [
+					{
+						path: "cadastro",
+						element: <PatientForm />,
+					},
+				],
 			},
 			{
 				path: "/agenda",
