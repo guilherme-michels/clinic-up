@@ -12,8 +12,21 @@ import { router } from "./routes";
 import { AuthProvider } from "./context/AuthContext";
 import type { AppRouter } from "../../server/src/index";
 import { createTRPCReact } from "@trpc/react-query";
+import dayjs from "dayjs";
+import ptBr from "dayjs/locale/pt-br";
 
 export const trpc = createTRPCReact<AppRouter>();
+
+dayjs.locale({
+	...ptBr,
+	weekStart: 1,
+});
+
+dayjs()
+	.startOf("month")
+	.add(1, "day")
+	.set("year", 2018)
+	.format("YYYY-MM-DD HH:mm:ss");
 
 export function App() {
 	const [queryClient] = useState(() => new QueryClient());
