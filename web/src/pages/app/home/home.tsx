@@ -3,6 +3,7 @@ import { CalendarCard } from "./cards/calendar-card";
 import { PatientCard } from "./cards/patient-card";
 import { FinancialCard } from "./cards/financial-card";
 import { CustomerSatisfactionCard } from "./cards/customer-satisfaction-card";
+import { ClinicGoalsCard } from "./cards/clinic-goals-card";
 
 export function Home() {
 	return (
@@ -16,11 +17,13 @@ export function Home() {
 				<div className="grid lg:grid-cols-2 gap-4 ">
 					<CalendarCard />
 					<PatientCard />
-					<FinancialCard />
 				</div>
 
 				<div className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+					<FinancialCard />
+
 					<CustomerSatisfactionCard />
+					<ClinicGoalsCard />
 				</div>
 			</div>
 		</>

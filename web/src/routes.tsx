@@ -14,6 +14,8 @@ import { Marketing } from "./pages/app/marketing/marketing";
 import { Team } from "./pages/app/team/team";
 import { Clinic } from "./pages/app/clinic/clinic";
 import { PatientForm } from "./pages/app/patients/patient-form";
+import { TeamForm } from "./pages/app/team/team-form";
+import { Settings } from "./pages/app/settings/settings";
 
 export const router = createBrowserRouter([
 	{
@@ -50,6 +52,16 @@ export const router = createBrowserRouter([
 			{
 				path: "/equipe",
 				element: <Team />,
+				children: [
+					{
+						path: "cadastro",
+						element: <TeamForm />,
+					},
+				],
+			},
+			{
+				path: "/configuracoes",
+				element: <Settings />,
 			},
 			{
 				path: "/minha-clinica",

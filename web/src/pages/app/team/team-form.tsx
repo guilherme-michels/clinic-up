@@ -6,7 +6,7 @@ import { type Patient, PatientSchema } from "../../../../../data/schemas";
 import { FormInput } from "@/components/form-input";
 import { Button } from "@/components/ui/button";
 
-export function PatientForm() {
+export function TeamForm() {
 	const { id } = useParams<{ id: string }>();
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +27,7 @@ export function PatientForm() {
 	useEffect(() => {
 		if (id) {
 			setIsLoading(true);
-			fetchPatient(id).then((data) => {
+			fetchTeamMember(id).then((data) => {
 				reset(data);
 				setIsLoading(false);
 			});
@@ -59,15 +59,14 @@ export function PatientForm() {
 					Cancelar
 				</Button>
 				<Button type="submit">
-					{id ? "Atualizar Paciente" : "Adicionar Paciente"}
+					{id ? "Atualizar Paciente" : "Adicionar membro"}
 				</Button>
 			</div>
 		</form>
 	);
 }
 
-// Função mock para buscar paciente - substitua pela sua implementação real
-async function fetchPatient(id: string): Promise<Patient> {
+async function fetchTeamMember(id: string): Promise<Patient> {
 	return new Promise((resolve) => {
 		setTimeout(() => {
 			resolve({

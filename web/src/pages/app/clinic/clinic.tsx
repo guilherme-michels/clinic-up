@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { ClinicTabs } from "./clinic-tabs";
 import { Outlet, useLocation } from "react-router-dom";
-import { ClinicData } from "./clinic-data/clinic-data";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ClinicForm } from "./clinic-form/clinic-form";
 
 export function Clinic() {
 	const location = useLocation();
@@ -46,7 +46,7 @@ export function Clinic() {
 				</div>
 
 				{isClinicLocation ? (
-					<ClinicData isEditing={isEditing} onSave={handleSave} />
+					<ClinicForm isEditing={isEditing} onSave={handleSave} />
 				) : (
 					<Outlet />
 				)}

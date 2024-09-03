@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { SmilePlus, Frown, Star, MessageCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { HomeCardSkeleton } from "./home-card-skeleton";
 
 import {
@@ -59,9 +65,12 @@ export function CustomerSatisfactionCard() {
 	return (
 		<Card className="max-h-[400px]">
 			<CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-				<CardTitle className="text-base font-semibold">
-					Satisfação do Cliente
-				</CardTitle>
+				<div className="flex flex-col gap-1">
+					<CardTitle className="text-base font-semibold">
+						Satisfação do Cliente
+					</CardTitle>
+					<CardDescription>Janeiro 2024 - Hoje</CardDescription>
+				</div>
 				<Star className="size-4" />
 			</CardHeader>
 			<CardContent className="space-y-4">

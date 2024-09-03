@@ -19,7 +19,14 @@ import {
 	OrganizationUpdateInputSchema,
 	MemberCreateInputSchema,
 	MemberUpdateInputSchema,
+	PatientSchema,
+	PatientCreateInputSchema,
+	PatientUpdateInputSchema,
+	AppointmentSchema,
+	AppointmentCreateInputSchema,
+	AppointmentUpdateInputSchema,
 } from "../../data/schemas/index";
+import { getCurrentUserOrganizationId } from "./utils/current-user-organization";
 
 // Criando schemas para signIn e signUp
 const SignUpSchema = z.object({
@@ -125,27 +132,185 @@ const memberRouter = router({
 			return prisma.member.create({ data: input });
 		}),
 
-	getAll: publicProcedure.query(async () => {
-		return prisma.member.findMany();
+	getAll: protectedProcedure.query(async ({ ctx }) => {
+		const organizationId = await getCurrentUserOrganizationId(ctx);
+		return prisma.member.findMany({
+			where: { organizationId },
+			include: {
+				user: true,
+				organization: true,
+			},
+		});
 	}),
 
 	getById: publicProcedure
 		.input(MemberSchema.shape.id)
 		.query(async ({ input }) => {
-			return prisma.member.findUnique({ where: { id: input } });
+			return prisma.member.findUnique({
+				where: { id: input },
+				include: {
+					user: true,
+					organization: true,
+				},
+			});
 		}),
 
 	update: publicProcedure
 		.input(MemberUpdateInputSchema)
 		.mutation(async ({ input }) => {
 			const { id, ...data } = input;
-			return prisma.member.update({ where: { id }, data });
+			return prisma.member.update({
+				where: { id },
+				data,
+				include: {
+					user: true,
+					organization: true,
+				},
+			});
 		}),
 
 	delete: publicProcedure
 		.input(MemberSchema.shape.id)
 		.mutation(async ({ input }) => {
-			return prisma.member.delete({ where: { id: input } });
+			return prisma.member.delete({
+				where: { id: input },
+				include: {
+					user: true,
+					organization: true,
+				},
+			});
+		}),
+});
+
+// Rotas para Patient
+const patientRouter = router({
+	create: protectedProcedure
+		.input(PatientCreateInputSchema)
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patient.create({ data: { ...input, organizationId } });
+		}),
+
+	getAll: protectedProcedure.query(async ({ ctx }) => {
+		const organizationId = await getCurrentUserOrganizationId(ctx);
+		return prisma.patient.findMany({ where: { organizationId } });
+	}),
+
+	getById: protectedProcedure
+		.input(PatientSchema.shape.id)
+		.query(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patient.findFirst({ where: { id: input, organizationId } });
+		}),
+
+	update: protectedProcedure
+		.input(PatientUpdateInputSchema)
+		.mutation(async ({ input, ctx }) => {
+			const { id, ...data } = input;
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patient.update({ where: { id, organizationId }, data });
+		}),
+
+	delete: protectedProcedure
+		.input(PatientSchema.shape.id)
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patient.delete({ where: { id: input, organizationId } });
+		}),
+});
+
+// Rotas para Appointment
+const appointmentRouter = router({
+	create: protectedProcedure
+		.input(AppointmentCreateInputSchema)
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			const member = await prisma.member.findFirst({
+				where: { userId: ctx.user.id, organizationId },
+			});
+			if (!member) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "Usuário não é membro da organização",
+				});
+			}
+			return prisma.appointment.create({
+				data: { ...input, memberId: member.id },
+			});
+		}),
+
+	getAll: protectedProcedure.query(async ({ ctx }) => {
+		const organizationId = await getCurrentUserOrganizationId(ctx);
+		const member = await prisma.member.findFirst({
+			where: { userId: ctx.user.id, organizationId },
+		});
+		if (!member) {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: "Usuário não é membro da organização",
+			});
+		}
+		return prisma.appointment.findMany({
+			where: { memberId: member.id },
+			include: { patient: true },
+		});
+	}),
+
+	getById: protectedProcedure
+		.input(AppointmentSchema.shape.id)
+		.query(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			const member = await prisma.member.findFirst({
+				where: { userId: ctx.user.id, organizationId },
+			});
+			if (!member) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "Usuário não é membro da organização",
+				});
+			}
+			return prisma.appointment.findFirst({
+				where: { id: input, memberId: member.id },
+				include: { patient: true },
+			});
+		}),
+
+	update: protectedProcedure
+		.input(AppointmentUpdateInputSchema)
+		.mutation(async ({ input, ctx }) => {
+			const { id, ...data } = input;
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			const member = await prisma.member.findFirst({
+				where: { userId: ctx.user.id, organizationId },
+			});
+			if (!member) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "Usuário não é membro da organização",
+				});
+			}
+			return prisma.appointment.update({
+				where: { id, memberId: member.id },
+				data,
+			});
+		}),
+
+	delete: protectedProcedure
+		.input(AppointmentSchema.shape.id)
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			const member = await prisma.member.findFirst({
+				where: { userId: ctx.user.id, organizationId },
+			});
+			if (!member) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "Usuário não é membro da organização",
+				});
+			}
+			return prisma.appointment.delete({
+				where: { id: input, memberId: member.id },
+			});
 		}),
 });
 
@@ -260,7 +425,6 @@ const authRouter = router({
 	}),
 
 	profile: protectedProcedure.query(async ({ ctx }) => {
-		// Como estamos usando protectedProcedure, sabemos que ctx.user existe
 		return {
 			id: ctx.user.id,
 			name: ctx.user.name,
@@ -274,6 +438,8 @@ const appRouter = router({
 	user: userRouter,
 	organization: organizationRouter,
 	member: memberRouter,
+	patient: patientRouter,
+	appointment: appointmentRouter,
 });
 
 const server = createHTTPServer({

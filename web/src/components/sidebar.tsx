@@ -25,7 +25,6 @@ const icons = {
 	Dashboard: <ChartNoAxesCombined className="size-4" />,
 	Marketing: <BadgeDollarSign className="size-4" />,
 	Clinic: <FileSliders className="size-4" />,
-
 	Settings: <Settings className="size-4" />,
 };
 
@@ -54,7 +53,9 @@ const TooltipItem: React.FC<MenuItem & { isActive: boolean }> = ({
 					<span className="ml-2 text-sm">{name}</span>
 				</Link>
 			</TooltipTrigger>
-			<TooltipContent side="right">{name}</TooltipContent>
+			<TooltipContent side="right" className="z-50">
+				{name}
+			</TooltipContent>
 		</Tooltip>
 	</TooltipProvider>
 );
@@ -97,7 +98,6 @@ export const Sidebar: React.FC = () => {
 			icon: "Clinic",
 			link: "/minha-clinica",
 		},
-
 		{
 			name: "Configurações",
 			icon: "Settings",
@@ -108,19 +108,13 @@ export const Sidebar: React.FC = () => {
 	return (
 		<aside className="fixed inset-y-0 left-0 hidden w-48 flex-col border-r bg-mesBlue sm:flex z-0 mt-16">
 			<nav className="flex flex-col items-center gap-1 sm:py-5 px-2">
-				{menuItems.slice(0, -1).map((item) => (
+				{menuItems.map((item) => (
 					<TooltipItem
 						key={item.name}
 						{...item}
-						isActive={location.pathname === item.link}
+						isActive={location.pathname.startsWith(item.link)}
 					/>
 				))}
-			</nav>
-			<nav className="mt-auto flex flex-col items-center gap-4 px-1 sm:py-5">
-				<TooltipItem
-					{...menuItems[menuItems.length - 1]}
-					isActive={location.pathname === menuItems[menuItems.length - 1].link}
-				/>
 			</nav>
 		</aside>
 	);

@@ -13,7 +13,7 @@ generator zod {
   createInputTypes                 = true
   createModelTypes                 = true
   addInputTypeValidation           = false
-  createOptionalDefaultValuesTypes = false
+  createOptionalDefaultValuesTypes = true
   tsConfigFilePath                 = "tsconfig.json"
 }
 
@@ -91,8 +91,9 @@ model Invite {
 }
 
 model Member {
-  id   String @id @default(uuid())
-  role Role   @default(MEMBER)
+  id        String  @id @default(uuid())
+  role      Role    @default(MEMBER)
+  specialty String?
 
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   organizationId String       @map("organization_id")
@@ -100,8 +101,53 @@ model Member {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @map("user_id")
 
+  appointments Appointment[]
+
   @@unique([organizationId, userId])
   @@map("members")
+}
+
+model Patient {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?  @unique
+  phone     String?
+  birthDate DateTime @map("birth_date")
+  address   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  appointments Appointment[]
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+
+  @@map("patients")
+}
+
+model Appointment {
+  id          String            @id @default(uuid())
+  startTime   DateTime          @map("start_time")
+  endTime     DateTime          @map("end_time")
+  description String?
+  status      AppointmentStatus @default(SCHEDULED)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId String  @map("patient_id")
+
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId String @map("member_id")
+
+  @@map("appointments")
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }
 
 model Organization {
@@ -117,8 +163,9 @@ model Organization {
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String @map("user_id")
 
-  invites Invite[]
-  members Member[]
+  invites  Invite[]
+  members  Member[]
+  patients Patient[]
 
   @@map("organizations")
 }

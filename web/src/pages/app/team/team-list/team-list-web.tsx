@@ -35,43 +35,52 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { Patient } from "../../../../../../data/schemas";
+import type { MemberIncludeSchema } from "../../../../../../data/schemas";
 import { trpc } from "@/App";
+import type { z } from "zod";
+import { RoleBadge } from "@/components/role-badge";
 
-export const columns: ColumnDef<Patient>[] = [
+type MemberWithIncludes = z.infer<typeof MemberIncludeSchema>;
+
+export const columns: ColumnDef<MemberWithIncludes>[] = [
 	{
 		id: "avatar",
 		cell: ({ row }) => (
 			<div className="w-full items-center justify-center flex">
-				{/* <Avatar className="size-8">
+				<Avatar className="size-8">
 					<AvatarImage
-						src={row.original.avatarUrl || undefined}
-						alt={row.original.name || ""}
+						src={row.original.user.avatarUrl || undefined}
+						alt={row.original.user.name || ""}
 					/>
-					<AvatarFallback>{row.original.name?.charAt(0)}</AvatarFallback>
-				</Avatar> */}
+					<AvatarFallback>{row.original.user.name?.charAt(0)}</AvatarFallback>
+				</Avatar>
 			</div>
 		),
 		enableSorting: false,
 		enableHiding: false,
 	},
 	{
-		accessorKey: "name",
-		header: "Paciente",
+		accessorKey: "user.name",
+		header: "Nome",
 		cell: ({ row }) => (
 			<div className="flex flex-col">
-				<span className="font-medium">{row.original.name}</span>
+				<span className="font-medium">{row.original.user.name}</span>
 				<span className="text-sm text-muted-foreground">
-					{row.original.email}
+					{row.original.user.email}
 				</span>
 			</div>
 		),
 	},
 	{
+		accessorKey: "role",
+		header: "Função",
+		cell: ({ row }) => <RoleBadge role={row.original.role} />,
+	},
+	{
 		accessorKey: "createdAt",
 		header: "Data de Cadastro",
 		cell: ({ row }) => {
-			const date = new Date(row.getValue("createdAt"));
+			const date = new Date(row.original.user.createdAt);
 			return <div>{date.toLocaleDateString()}</div>;
 		},
 	},
@@ -79,7 +88,7 @@ export const columns: ColumnDef<Patient>[] = [
 		id: "actions",
 		enableHiding: false,
 		cell: ({ row }) => {
-			const patient = row.original;
+			const member = row.original;
 
 			return (
 				<DropdownMenu>
@@ -89,7 +98,7 @@ export const columns: ColumnDef<Patient>[] = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Ações</DropdownMenuLabel>
 						<DropdownMenuItem asChild>
-							<Link to={`/pacientes/editar/${patient.id}`}>Editar</Link>
+							<Link to={`/membros/editar/${member.id}`}>Editar</Link>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -98,7 +107,7 @@ export const columns: ColumnDef<Patient>[] = [
 	},
 ];
 
-export function PatientListWeb() {
+export function TeamListWeb() {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
@@ -107,10 +116,10 @@ export function PatientListWeb() {
 		React.useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = React.useState({});
 
-	const { data: patients, isLoading } = trpc.patient.getAll.useQuery();
+	const { data: members, isLoading } = trpc.member.getAll.useQuery();
 
 	const table = useReactTable({
-		data: patients || [],
+		data: members || [],
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -135,9 +144,11 @@ export function PatientListWeb() {
 			<div className="flex items-center py-4">
 				<Input
 					placeholder="Filtrar por nome..."
-					value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+					value={
+						(table.getColumn("user.name")?.getFilterValue() as string) ?? ""
+					}
 					onChange={(event) =>
-						table.getColumn("name")?.setFilterValue(event.target.value)
+						table.getColumn("user.name")?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>

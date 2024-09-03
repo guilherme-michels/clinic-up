@@ -14,7 +14,7 @@ interface ClinicDataProps {
 	onSave: () => void;
 }
 
-export function ClinicData({ isEditing, onSave }: ClinicDataProps) {
+export function ClinicForm({ isEditing, onSave }: ClinicDataProps) {
 	const { data: clinicData, isLoading } =
 		trpc.organization.getCurrentUserOrganization.useQuery();
 	const updateClinicData = trpc.organization.update.useMutation({
