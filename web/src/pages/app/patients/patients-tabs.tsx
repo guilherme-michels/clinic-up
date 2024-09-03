@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useLocation } from "react-router-dom";
 
-export function PatientTabs() {
+export function PatientsTabs() {
 	const location = useLocation();
 	const currentPath = location.pathname;
 

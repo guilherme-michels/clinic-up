@@ -106,7 +106,7 @@ export const Sidebar: React.FC = () => {
 	];
 
 	return (
-		<aside className="fixed inset-y-0 left-0 hidden w-48 flex-col border-r bg-mesBlue sm:flex z-0 mt-16">
+		<aside className="fixed inset-y-0 left-0 hidden xl:w-48 w-44 flex-col border-r bg-mesBlue sm:flex z-0 mt-16">
 			<nav className="flex flex-col items-center gap-1 sm:py-5 px-2">
 				{menuItems.map((item) => (
 					<TooltipItem

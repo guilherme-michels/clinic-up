@@ -11,7 +11,7 @@ export function AppLayout() {
 
 			<Sidebar />
 
-			<div className="flex flex-1 flex-col gap-4 p-8 pt-6 sm:ml-48 mt-16">
+			<div className="flex flex-1 flex-col gap-4 p-4 pt-6 sm:ml-44 xl:ml-48 mt-16">
 				<Outlet />
 			</div>
 		</div>

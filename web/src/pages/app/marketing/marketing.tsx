@@ -5,7 +5,7 @@ export function Marketing() {
 		<>
 			<Helmet title="Marketing" />
 			<div className="flex flex-col gap-4">
-				<h1 className="text-xl sm:text-3xl font-bold tracking-tight">
+				<h1 className="text-xl sm:text-2xl  font-bold tracking-tight">
 					Marketing
 				</h1>
 

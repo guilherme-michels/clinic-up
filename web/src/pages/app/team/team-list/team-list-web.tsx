@@ -60,6 +60,7 @@ export const columns: ColumnDef<MemberWithIncludes>[] = [
 		enableHiding: false,
 	},
 	{
+		id: "name",
 		accessorKey: "user.name",
 		header: "Nome",
 		cell: ({ row }) => (
@@ -98,7 +99,7 @@ export const columns: ColumnDef<MemberWithIncludes>[] = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Ações</DropdownMenuLabel>
 						<DropdownMenuItem asChild>
-							<Link to={`/membros/editar/${member.id}`}>Editar</Link>
+							<Link to={`/equipe/cadastro/${member.id}`}>Editar</Link>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -144,11 +145,9 @@ export function TeamListWeb() {
 			<div className="flex items-center py-4">
 				<Input
 					placeholder="Filtrar por nome..."
-					value={
-						(table.getColumn("user.name")?.getFilterValue() as string) ?? ""
-					}
+					value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
 					onChange={(event) =>
-						table.getColumn("user.name")?.setFilterValue(event.target.value)
+						table.getColumn("name")?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>

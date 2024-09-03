@@ -59,12 +59,15 @@ export const columns: ColumnDef<Patient>[] = [
 		accessorKey: "name",
 		header: "Paciente",
 		cell: ({ row }) => (
-			<div className="flex flex-col">
+			<Link
+				to={`${row.original.id}`}
+				className="flex flex-col hover:cursor-pointer hover:text-zinc-600"
+			>
 				<span className="font-medium">{row.original.name}</span>
 				<span className="text-sm text-muted-foreground">
 					{row.original.email}
 				</span>
-			</div>
+			</Link>
 		),
 	},
 	{
@@ -89,7 +92,11 @@ export const columns: ColumnDef<Patient>[] = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Ações</DropdownMenuLabel>
 						<DropdownMenuItem asChild>
-							<Link to={`/pacientes/editar/${patient.id}`}>Editar</Link>
+							<Link to={`/pacientes/cadastro/${patient.id}`}>Editar</Link>
+						</DropdownMenuItem>
+
+						<DropdownMenuItem asChild>
+							<Link to={`/pacientes/${patient.id}`}>Ver</Link>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

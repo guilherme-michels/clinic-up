@@ -16,6 +16,10 @@ import { Clinic } from "./pages/app/clinic/clinic";
 import { PatientForm } from "./pages/app/patients/patient-form";
 import { TeamForm } from "./pages/app/team/team-form";
 import { Settings } from "./pages/app/settings/settings";
+import { Patient } from "./pages/app/patients/patient/patient";
+import { PatientHistory } from "./pages/app/patients/patient/patient-history";
+import { PatientImages } from "./pages/app/patients/patient/patient-images";
+import { PatientBudget } from "./pages/app/patients/patient/patient-budget";
 
 export const router = createBrowserRouter([
 	{
@@ -39,6 +43,28 @@ export const router = createBrowserRouter([
 						path: "cadastro",
 						element: <PatientForm />,
 					},
+					{
+						path: "cadastro/:id",
+						element: <PatientForm />,
+					},
+				],
+			},
+			{
+				path: "/pacientes/:id",
+				element: <Patient />,
+				children: [
+					{
+						path: "historico",
+						element: <PatientHistory />,
+					},
+					{
+						path: "imagens",
+						element: <PatientImages />,
+					},
+					{
+						path: "orcamentos",
+						element: <PatientBudget />,
+					},
 				],
 			},
 			{
@@ -57,6 +83,10 @@ export const router = createBrowserRouter([
 						path: "cadastro",
 						element: <TeamForm />,
 					},
+					{
+						path: "cadastro/:id",
+						element: <TeamForm />,
+					},
 				],
 			},
 			{
@@ -66,6 +96,10 @@ export const router = createBrowserRouter([
 			{
 				path: "/minha-clinica",
 				element: <Clinic />,
+			},
+			{
+				path: "*",
+				element: <NotFound />,
 			},
 		],
 	},
@@ -82,9 +116,5 @@ export const router = createBrowserRouter([
 				element: <SignUp />,
 			},
 		],
-	},
-	{
-		path: "*",
-		element: <NotFound />,
 	},
 ]);

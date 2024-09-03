@@ -22,7 +22,7 @@ export function RoleBadge({ role }: RoleBadgeProps) {
 	const getRoleLabel = (role: RoleType) => {
 		switch (role) {
 			case "ADMIN":
-				return "Administrador";
+				return "Admin";
 			case "MEMBER":
 				return "Membro";
 			case "BILLING":

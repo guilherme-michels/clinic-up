@@ -13,6 +13,7 @@ import "./calendar.css";
 import { useTheme } from "@/components/theme/theme-provider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, ArrowRight, CalendarCheck2 } from "lucide-react";
+import { CalendarHeaderCard } from "./cards/calendar-header-card";
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -67,19 +68,26 @@ export function Calendar() {
 		<>
 			<Helmet title="Agenda" />
 			<div className="flex flex-col gap-4">
-				<h1 className="text-xl sm:text-3xl font-bold tracking-tight">Agenda</h1>
+				<h1 className="text-xl sm:text-2xl  font-bold tracking-tight">
+					Agenda
+				</h1>
 
-				<div className="flex justify-between">
-					<div />
-					<Button
-						onClick={() => {
-							setSelectedSlotInfo(null);
-							setIsEventFormModalVisible(true);
-						}}
-					>
-						Adicionar agendamento
-					</Button>
+				<div className="flex lg:grid-cols-2 gap-4 items-center justify-between">
+					<CalendarHeaderCard />
+
+					<div className="flex justify-between">
+						<Button
+							onClick={() => {
+								setSelectedSlotInfo(null);
+								setIsEventFormModalVisible(true);
+							}}
+							className="h-fit"
+						>
+							Adicionar agendamento
+						</Button>
+					</div>
 				</div>
+
 				<BigCalendar
 					className={theme === "dark" ? "dark-theme" : ""}
 					localizer={localizer}
@@ -165,7 +173,7 @@ export function Calendar() {
 										props.label.slice(-2)}
 									.
 								</span>
-								<strong className="text-xl font-semibold">
+								<strong className="text-sm font-semibold">
 									{dayjs(props.date).format("DD/MM")}
 								</strong>
 							</div>
