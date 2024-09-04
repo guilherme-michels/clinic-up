@@ -38,6 +38,12 @@ interface Appointment {
 const testAppointments: Appointment[] = [
 	{ data: "2023-06-15", status: "SCHEDULED", nomePaciente: "Maria Silva" },
 	{ data: "2023-07-20", status: "CANCELED", nomePaciente: "Maria Silva" },
+	{ data: "2023-06-15", status: "SCHEDULED", nomePaciente: "Maria Silva" },
+	{ data: "2023-07-20", status: "CANCELED", nomePaciente: "Maria Silva" },
+	{ data: "2023-06-15", status: "SCHEDULED", nomePaciente: "Maria Silva" },
+	{ data: "2023-07-20", status: "CANCELED", nomePaciente: "Maria Silva" },
+	{ data: "2023-06-15", status: "SCHEDULED", nomePaciente: "Maria Silva" },
+	{ data: "2023-07-20", status: "CANCELED", nomePaciente: "Maria Silva" },
 ];
 
 export function PatientAbout() {
@@ -46,7 +52,7 @@ export function PatientAbout() {
 
 	return (
 		<div className="w-full grid-cols-1 2xl:grid-cols-2 grid gap-4">
-			<Card>
+			<Card className="h-fit">
 				<CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="font-semibold">Dados pessoais</CardTitle>
 				</CardHeader>
@@ -76,11 +82,11 @@ export function PatientAbout() {
 				</CardContent>
 			</Card>
 
-			<Card>
+			<Card className="h-fit">
 				<CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="font-semibold">Consultas</CardTitle>
 				</CardHeader>
-				<CardContent className="space-y-4 overflow-y-auto flex flex-col max-h-[400px]">
+				<CardContent className="space-y-4 overflow-y-auto flex flex-col max-h-[300px]">
 					{appointments.map((appointment) => (
 						<AppointmentItem key={appointment.data} appointment={appointment} />
 					))}

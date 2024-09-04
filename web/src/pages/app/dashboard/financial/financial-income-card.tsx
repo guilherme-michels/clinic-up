@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { DollarSign, TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FinancialStats {
 	totalRevenue: number;
@@ -74,7 +75,7 @@ export function FinancialIncomeCard() {
 		const timer = setTimeout(() => {
 			setStats(financialStats);
 			setIsLoading(false);
-		}, 1000);
+		}, 3000);
 
 		return () => clearTimeout(timer);
 	}, []);
@@ -113,7 +114,11 @@ export function FinancialIncomeCard() {
 						/>
 					</>
 				) : (
-					<div>a</div>
+					<div className="flex w-full flex-col gap-4">
+						<Skeleton className="h-12" />
+						<Skeleton className="h-12" />
+						<Skeleton className="h-12" />
+					</div>
 				)}
 			</CardContent>
 		</Card>
