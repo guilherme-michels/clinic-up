@@ -8,6 +8,7 @@ interface AuthContextData {
 	signOut: () => void;
 	isAuthenticated: boolean;
 	getToken: () => string | null;
+	checkAuth: () => Promise<void>;
 }
 
 interface User {
@@ -25,13 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 	const signInMutation = trpc.auth.signIn.useMutation();
-
-	useEffect(() => {
-		const token = localStorage.getItem("token");
-		if (token) {
-			setIsAuthenticated(true);
-		}
-	}, []);
+	const checkAuthMutation = trpc.auth.profile.useQuery();
 
 	const signIn = async (email: string, password: string) => {
 		try {
@@ -60,9 +55,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		return localStorage.getItem("token");
 	};
 
+	const checkAuth = async () => {
+		const token = getToken();
+		if (token) {
+			try {
+				const result = await checkAuthMutation.refetch();
+				if (result.data) {
+					setUser({
+						id: result.data.id,
+						name: result.data.name || "",
+						email: result.data.email,
+					});
+					setIsAuthenticated(true);
+				} else {
+					throw new Error("Dados de autenticação inválidos");
+				}
+			} catch (error) {
+				setIsAuthenticated(false);
+
+				console.error("Erro ao verificar autenticação:", error);
+				signOut();
+			}
+		}
+	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		checkAuth();
+	}, []);
+
 	return (
 		<AuthContext.Provider
-			value={{ user, signIn, signOut, isAuthenticated, getToken }}
+			value={{ user, signIn, signOut, isAuthenticated, getToken, checkAuth }}
 		>
 			{children}
 		</AuthContext.Provider>

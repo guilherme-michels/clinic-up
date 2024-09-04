@@ -63,7 +63,7 @@ export function SignUp() {
 							Criar conta grátis
 						</h1>
 						<p className="text-sm text-muted-foreground">
-							Seja um parceiro e comece suas vendas!
+							Seja um parceiro e entre para a melhor solução de Clínicas!
 						</p>
 					</div>
 
@@ -114,25 +114,23 @@ export function SignUp() {
 							)}
 						</div>
 
-						<Button disabled={isSubmitting} className="w-full" type="submit">
+						<Button
+							disabled={isSubmitting}
+							className="w-full h-10"
+							type="submit"
+						>
 							Finalizar cadastro
 						</Button>
 
 						<p className="px-6 text-center text-sm leading-relaxed text-muted-foreground">
 							Ao continuar, você concorda com nossos{" "}
-							<a
-								href="/termos-de-servico"
-								className="underline underline-offset-4"
-							>
+							<span className="underline underline-offset-4">
 								termos de serviço
-							</a>{" "}
+							</span>{" "}
 							e{" "}
-							<a
-								href="/politicas-de-privacidade"
-								className="underline underline-offset-4"
-							>
+							<span className="underline underline-offset-4">
 								políticas de privacidade
-							</a>
+							</span>
 						</p>
 					</form>
 				</div>

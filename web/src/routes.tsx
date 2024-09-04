@@ -1,5 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
-
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { AppLayout } from "./pages/_layouts/app";
 import { AuthLayout } from "./pages/_layouts/auth";
 import { ErrorPage } from "./pages/error";
@@ -20,86 +19,130 @@ import { Patient } from "./pages/app/patients/patient/patient";
 import { PatientHistory } from "./pages/app/patients/patient/patient-history";
 import { PatientImages } from "./pages/app/patients/patient/patient-images";
 import { PatientBudget } from "./pages/app/patients/patient/patient-budget";
+import { useAuth } from "./context/AuthContext";
+import { ClinicUp } from "./pages/clinic-up";
+import { useEffect, useState } from "react";
+import { FinancialDashboard } from "./pages/app/dashboard/financial/financial-dashboard";
+import { PatientDashboard } from "./pages/app/dashboard/patient/patient-dashboard";
+
+const ProtectedRoute = () => {
+	const { isAuthenticated, checkAuth } = useAuth();
+	const [isLoading, setIsLoading] = useState(true);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		const verifyAuth = async () => {
+			await checkAuth();
+			setIsLoading(false);
+		};
+		verifyAuth();
+	}, []);
+
+	if (isLoading) {
+		return <div>Carregando...</div>;
+	}
+
+	if (!isAuthenticated) {
+		return <Navigate to="/sign-in" replace />;
+	}
+
+	return <Outlet />;
+};
 
 export const router = createBrowserRouter([
 	{
-		path: "/",
-		element: <AppLayout />,
-		errorElement: <ErrorPage />,
+		element: <ProtectedRoute />,
 		children: [
 			{
-				path: "/pagina-inicial",
-				element: <Home />,
-			},
-			{
-				path: "/analise-dados",
-				element: <Dashboard />,
-			},
-			{
-				path: "/pacientes",
-				element: <Patients />,
+				path: "/",
+				element: <AppLayout />,
+				errorElement: <ErrorPage />,
 				children: [
 					{
-						path: "cadastro",
-						element: <PatientForm />,
+						path: "/pagina-inicial",
+						element: <Home />,
 					},
 					{
-						path: "cadastro/:id",
-						element: <PatientForm />,
+						path: "/analise-dados",
+						element: <Dashboard />,
+						children: [
+							{
+								path: "financeiro",
+								element: <FinancialDashboard />,
+							},
+							{
+								path: "pacientes",
+								element: <PatientDashboard />,
+							},
+						],
+					},
+					{
+						path: "/pacientes",
+						element: <Patients />,
+						children: [
+							{
+								path: "cadastro",
+								element: <PatientForm />,
+							},
+							{
+								path: "cadastro/:id",
+								element: <PatientForm />,
+							},
+						],
+					},
+					{
+						path: "/pacientes/:id",
+						element: <Patient />,
+						children: [
+							{
+								path: "historico",
+								element: <PatientHistory />,
+							},
+							{
+								path: "imagens",
+								element: <PatientImages />,
+							},
+							{
+								path: "orcamentos",
+								element: <PatientBudget />,
+							},
+						],
+					},
+					{
+						path: "/agenda",
+						element: <Calendar />,
+					},
+					{
+						path: "/marketing",
+						element: <Marketing />,
+					},
+					{
+						path: "/equipe",
+						element: <Team />,
+						children: [
+							{
+								path: "cadastro",
+								element: <TeamForm />,
+							},
+							{
+								path: "cadastro/:id",
+								element: <TeamForm />,
+							},
+						],
+					},
+					{
+						path: "/configuracoes",
+						element: <Settings />,
+					},
+					{
+						path: "/minha-clinica",
+						element: <Clinic />,
+					},
+					{
+						path: "*",
+						element: <NotFound />,
 					},
 				],
-			},
-			{
-				path: "/pacientes/:id",
-				element: <Patient />,
-				children: [
-					{
-						path: "historico",
-						element: <PatientHistory />,
-					},
-					{
-						path: "imagens",
-						element: <PatientImages />,
-					},
-					{
-						path: "orcamentos",
-						element: <PatientBudget />,
-					},
-				],
-			},
-			{
-				path: "/agenda",
-				element: <Calendar />,
-			},
-			{
-				path: "/marketing",
-				element: <Marketing />,
-			},
-			{
-				path: "/equipe",
-				element: <Team />,
-				children: [
-					{
-						path: "cadastro",
-						element: <TeamForm />,
-					},
-					{
-						path: "cadastro/:id",
-						element: <TeamForm />,
-					},
-				],
-			},
-			{
-				path: "/configuracoes",
-				element: <Settings />,
-			},
-			{
-				path: "/minha-clinica",
-				element: <Clinic />,
-			},
-			{
-				path: "*",
-				element: <NotFound />,
 			},
 		],
 	},
@@ -116,5 +159,9 @@ export const router = createBrowserRouter([
 				element: <SignUp />,
 			},
 		],
+	},
+	{
+		path: "/clinic-up",
+		element: <ClinicUp />,
 	},
 ]);

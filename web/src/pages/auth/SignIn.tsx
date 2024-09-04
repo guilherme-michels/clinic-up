@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
+import { NotebookText } from "lucide-react";
 
 const signInForm = z.object({
 	email: z.string().email("E-mail inválido"),
@@ -39,8 +40,12 @@ export function SignIn() {
 			await signIn(data.email, data.password);
 			toast.success("Bem vindo!");
 			navigate("/");
-		} catch (error) {
-			console.error("Erro ao fazer login:", error);
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				toast.error(error.message);
+			} else {
+				toast.error("Ocorreu um erro desconhecido");
+			}
 		}
 	}
 
@@ -49,6 +54,13 @@ export function SignIn() {
 			<Helmet title="Login" />
 
 			<div className="p-8">
+				<Button variant="ghost" asChild className="absolute left-8 top-8">
+					<Link to="/clinic-up" className="flex items-center gap-1">
+						<NotebookText />
+						Conheça os planos
+					</Link>
+				</Button>
+
 				<Button variant="ghost" asChild className="absolute right-8 top-8">
 					<Link to="/sign-up">Nova organização</Link>
 				</Button>
@@ -82,7 +94,11 @@ export function SignIn() {
 							)}
 						</div>
 
-						<Button disabled={isSubmitting} className="w-full" type="submit">
+						<Button
+							disabled={isSubmitting}
+							className="w-full h-10"
+							type="submit"
+						>
 							Acessar painel
 						</Button>
 					</form>

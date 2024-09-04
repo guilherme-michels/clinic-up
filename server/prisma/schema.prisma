@@ -122,6 +122,10 @@ model Patient {
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
 
+  financialTransactions FinancialTransaction[]
+
+  satisfactionRatings CustomerSatisfaction[]
+
   @@map("patients")
 }
 
@@ -167,5 +171,57 @@ model Organization {
   members  Member[]
   patients Patient[]
 
+  financialTransactions FinancialTransaction[]
+
+  customerSatisfactions CustomerSatisfaction[]
+
   @@map("organizations")
+}
+
+model FinancialTransaction {
+  id            String          @id @default(uuid())
+  description   String
+  amount        Decimal
+  type          TransactionType
+  paymentMethod PaymentMethod
+  date          DateTime
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+
+  patient   Patient? @relation(fields: [patientId], references: [id])
+  patientId String?  @map("patient_id")
+
+  @@map("financial_transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  PIX
+  OTHER
+}
+
+model CustomerSatisfaction {
+  id        String   @id @default(uuid())
+  rating    Int      @db.SmallInt // Pontuação de 1 a 5, por exemplo
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId String  @map("patient_id")
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+
+  @@map("customer_satisfaction")
 }

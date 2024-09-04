@@ -115,8 +115,8 @@ function AppointmentItem({ appointment }: { appointment: Appointment }) {
 function InfoItem({ label, value }: { label: string; value: string }) {
 	return (
 		<div>
-			<p className="text-sm font-medium text-gray-500">{label}</p>
-			<p className="text-sm text-gray-900">{value}</p>
+			<p className="text-sm font-medium text-zinc-300">{label}</p>
+			<p className="text-sm">{value}</p>
 		</div>
 	);
 }
