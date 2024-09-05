@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import {
 	type Appointment,
 	AppointmentSchema,
-} from "../../../../../../data/schemas/index";
+} from "../../../../../../server/src/schemas/index";
 import {
 	Dialog,
 	DialogClose,

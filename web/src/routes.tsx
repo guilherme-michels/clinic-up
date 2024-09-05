@@ -24,9 +24,10 @@ import { ClinicUp } from "./pages/clinic-up";
 import { useEffect, useState } from "react";
 import { FinancialDashboard } from "./pages/app/dashboard/financial/financial-dashboard";
 import { PatientDashboard } from "./pages/app/dashboard/patient/patient-dashboard";
-import { Anamnese } from "./pages/app/clinic/anamnese/anamnese";
 import { ClinicPlans } from "./pages/app/clinic/clinic-plans/clinic-plans";
 import { Financial } from "./pages/app/financial/financial";
+import { AnamneseList } from "./pages/app/clinic/anamnese/anamnese-list";
+import { LoaderCircle } from "lucide-react";
 
 const ProtectedRoute = () => {
 	const { isAuthenticated, checkAuth } = useAuth();
@@ -42,7 +43,11 @@ const ProtectedRoute = () => {
 	}, []);
 
 	if (isLoading) {
-		return <div>Carregando...</div>;
+		return (
+			<div className="size-full items-center justify-center flex">
+				<LoaderCircle className="text-foreground animate-spin" size={28} />
+			</div>
+		);
 	}
 
 	if (!isAuthenticated) {
@@ -151,7 +156,7 @@ export const router = createBrowserRouter([
 							},
 							{
 								path: "anamnese",
-								element: <Anamnese />,
+								element: <AnamneseList />,
 							},
 						],
 					},

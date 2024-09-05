@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { RoleType } from "../../../data/schemas/index";
+import type { RoleType } from "../../../server/src/schemaschemas/index";
 
 interface RoleBadgeProps {
 	role: RoleType;

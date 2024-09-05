@@ -25,8 +25,14 @@ import {
 	AppointmentSchema,
 	AppointmentCreateInputSchema,
 	AppointmentUpdateInputSchema,
-} from "../../data/schemas/index";
+	PatientAnamnesisUpdateInputSchema,
+	PatientAnamnesisCreateInputSchema,
+} from "./schemas/index";
 import { getCurrentUserOrganizationId } from "./utils/current-user-organization";
+import {
+	createAnamneseTemplate,
+	updateAnamneseTemplate,
+} from "./zod-types/schemas";
 
 // Criando schemas para signIn e signUp
 const SignUpSchema = z.object({
@@ -235,7 +241,7 @@ const appointmentRouter = router({
 				});
 			}
 			return prisma.appointment.create({
-				data: { ...input, memberId: member.id },
+				data: { ...input, memberId: member.id, patientId: input.patientId },
 			});
 		}),
 
@@ -310,6 +316,110 @@ const appointmentRouter = router({
 			}
 			return prisma.appointment.delete({
 				where: { id: input, memberId: member.id },
+			});
+		}),
+});
+
+// Rotas para AnamnesisTemplate
+const anamnesisTemplateRouter = router({
+	create: protectedProcedure
+		.input(createAnamneseTemplate)
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.anamnesisTemplate.create({
+				data: { ...input, organizationId },
+			});
+		}),
+
+	getAll: protectedProcedure.query(async ({ ctx }) => {
+		const organizationId = await getCurrentUserOrganizationId(ctx);
+		return prisma.anamnesisTemplate.findMany({
+			where: { organizationId },
+			include: { questions: true },
+		});
+	}),
+
+	getById: protectedProcedure
+		.input(z.string())
+		.query(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.anamnesisTemplate.findFirst({
+				where: { id: input, organizationId },
+				include: { questions: true },
+			});
+		}),
+
+	update: protectedProcedure
+		.input(updateAnamneseTemplate)
+		.mutation(async ({ input }) => {
+			const { id, ...updateData } = input;
+			return prisma.anamnesisTemplate.update({
+				where: { id },
+				data: updateData,
+			});
+		}),
+
+	delete: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.anamnesisTemplate.delete({
+				where: { id: input, organizationId },
+			});
+		}),
+});
+
+// Rotas para PatientAnamnesis
+const patientAnamnesisRouter = router({
+	create: protectedProcedure
+		.input(PatientAnamnesisCreateInputSchema)
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patientAnamnesis.create({
+				data: {
+					...input,
+					template: { connect: { id: input.templateId, organizationId } },
+				},
+				include: { answers: true, template: true },
+			});
+		}),
+
+	getAll: protectedProcedure.query(async ({ ctx }) => {
+		const organizationId = await getCurrentUserOrganizationId(ctx);
+		return prisma.patientAnamnesis.findMany({
+			where: { template: { organizationId } },
+			include: { answers: true, template: true },
+		});
+	}),
+
+	getById: protectedProcedure
+		.input(z.string())
+		.query(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patientAnamnesis.findFirst({
+				where: { id: input, template: { organizationId } },
+				include: { answers: true, template: true },
+			});
+		}),
+
+	update: protectedProcedure
+		.input(PatientAnamnesisUpdateInputSchema)
+		.mutation(async ({ input, ctx }) => {
+			const { id, ...data } = input;
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patientAnamnesis.update({
+				where: { id, template: { organizationId } },
+				data,
+				include: { answers: true, template: true },
+			});
+		}),
+
+	delete: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			return prisma.patientAnamnesis.delete({
+				where: { id: input, template: { organizationId } },
 			});
 		}),
 });
@@ -440,6 +550,8 @@ const appRouter = router({
 	member: memberRouter,
 	patient: patientRouter,
 	appointment: appointmentRouter,
+	anamnesisTemplate: anamnesisTemplateRouter,
+	patientAnamnesis: patientAnamnesisRouter,
 });
 
 const server = createHTTPServer({

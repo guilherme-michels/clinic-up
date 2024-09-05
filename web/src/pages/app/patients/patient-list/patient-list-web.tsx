@@ -33,7 +33,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { Patient } from "../../../../../../data/schemas";
+import type { Patient } from "../../../../../../server/src/schemas";
 import { trpc } from "@/App";
 
 export const columns: ColumnDef<Patient>[] = [

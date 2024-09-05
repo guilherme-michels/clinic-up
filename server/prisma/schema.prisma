@@ -9,11 +9,11 @@ datasource db {
 
 generator zod {
   provider                         = "zod-prisma-types"
-  output                           = "../../data/schemas"
+  output                           = "../src/schemas"
   createInputTypes                 = true
   createModelTypes                 = true
-  addInputTypeValidation           = false
-  createOptionalDefaultValuesTypes = true
+  addInputTypeValidation           = true
+  createOptionalDefaultValuesTypes = false
   tsConfigFilePath                 = "tsconfig.json"
 }
 
@@ -125,6 +125,7 @@ model Patient {
 
   FinancialTransaction FinancialTransaction[]
   CustomerSatisfaction CustomerSatisfaction[]
+  PatientAnamnesis     PatientAnamnesis[]
 
   @@map("patients")
 }
@@ -165,24 +166,20 @@ model AnamnesisTemplate {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  questions AnamnesisQuestion[]
-  anamneses Anamnesis[]
-
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
+
+  questions        AnamnesisQuestion[]
+  patientAnamneses PatientAnamnesis[]
+  Anamnesis        Anamnesis[]
 
   @@map("anamnesis_templates")
 }
 
 model AnamnesisQuestion {
-  id         String       @id @default(uuid())
-  question   String
-  type       QuestionType
-  options    String[]     @default([])
-  isRequired Boolean      @default(false)
-  order      Int
-  createdAt  DateTime     @default(now()) @map("created_at")
-  updatedAt  DateTime     @updatedAt @map("updated_at")
+  id       String       @id @default(uuid())
+  question String
+  type     QuestionType
 
   template   AnamnesisTemplate @relation(fields: [templateId], references: [id])
   templateId String            @map("template_id")
@@ -192,17 +189,33 @@ model AnamnesisQuestion {
   @@map("anamnesis_questions")
 }
 
-model AnamnesisAnswer {
+model PatientAnamnesis {
   id        String   @id @default(uuid())
-  answer    String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId String  @map("patient_id")
+
+  template   AnamnesisTemplate @relation(fields: [templateId], references: [id])
+  templateId String            @map("template_id")
+
+  answers AnamnesisAnswer[]
+
+  @@map("patient_anamneses")
+}
+
+model AnamnesisAnswer {
+  id     String @id @default(uuid())
+  answer String
 
   question   AnamnesisQuestion @relation(fields: [questionId], references: [id])
   questionId String            @map("question_id")
 
-  anamnesis   Anamnesis @relation(fields: [anamnesisId], references: [id])
-  anamnesisId String    @map("anamnesis_id")
+  patientAnamnesis   PatientAnamnesis @relation(fields: [patientAnamnesisId], references: [id])
+  patientAnamnesisId String           @map("patient_anamnesis_id")
+  Anamnesis          Anamnesis?       @relation(fields: [anamnesisId], references: [id])
+  anamnesisId        String?
 
   @@map("anamnesis_answers")
 }
@@ -269,7 +282,7 @@ model Organization {
 model FinancialTransaction {
   id            String          @id @default(uuid())
   description   String
-  amount        Decimal
+  amount        String
   type          TransactionType
   paymentMethod PaymentMethod
   date          DateTime

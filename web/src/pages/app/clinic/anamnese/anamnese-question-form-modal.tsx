@@ -9,12 +9,15 @@ import {
 	OrganizationSchema,
 } from "../../../../../../server/src/schemas";
 
-interface ClinicDataProps {
+interface AnamneseQuestionFormModalProps {
 	isEditing: boolean;
 	onSave: () => void;
 }
 
-export function ClinicForm({ isEditing, onSave }: ClinicDataProps) {
+export function AnamneseQuestionFormModal({
+	isEditing,
+	onSave,
+}: AnamneseQuestionFormModalProps) {
 	const { data: clinicData, isLoading } =
 		trpc.organization.getCurrentUserOrganization.useQuery();
 	const updateClinicData = trpc.organization.update.useMutation({

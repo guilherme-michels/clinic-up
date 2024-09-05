@@ -9,7 +9,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { User } from "../../../../../../data/schemas";
+import type { User } from "../../../../../../server/src/schemas";
 
 const users: User[] = [
 	{

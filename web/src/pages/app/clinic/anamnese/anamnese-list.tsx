@@ -1,4 +1,5 @@
-import * as React from "react";
+import { useState } from "react";
+
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -11,9 +12,14 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, MoreHorizontal, SlidersHorizontal } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link } from "react-router-dom";
+
+import {
+	ChevronDown,
+	MoreHorizontal,
+	SlidersHorizontal,
+	Eye,
+	Edit,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,92 +39,95 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { MemberIncludeSchema } from "../../../../../../data/schemas";
 import { trpc } from "@/App";
-import type { z } from "zod";
-import { RoleBadge } from "@/components/role-badge";
+import type { AnamnesisTemplate } from "../../../../../../server/src/schemas";
+import { AnamneseModal } from "./anamnese-modal";
+import { AnamneseFormModal } from "./anamnese-form-modal";
 
-type MemberWithIncludes = z.infer<typeof MemberIncludeSchema>;
+export function AnamneseList() {
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+	const [rowSelection, setRowSelection] = useState({});
+	const [modalOpen, setModalOpen] = useState(false);
+	const [anamneseFormModalOpen, setAnamneseFormModalOpen] = useState(false);
 
-export const columns: ColumnDef<MemberWithIncludes>[] = [
-	{
-		id: "avatar",
-		cell: ({ row }) => (
-			<div className="w-full items-center justify-center flex">
-				<Avatar className="size-8">
-					<AvatarImage
-						src={row.original.user.avatarUrl || undefined}
-						alt={row.original.user.name || ""}
-					/>
-					<AvatarFallback>{row.original.user.name?.charAt(0)}</AvatarFallback>
-				</Avatar>
-			</div>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
-	{
-		id: "name",
-		accessorKey: "user.name",
-		header: "Nome",
-		cell: ({ row }) => (
-			<div className="flex flex-col">
-				<span className="font-medium">{row.original.user.name}</span>
-				<span className="text-sm text-muted-foreground">
-					{row.original.user.email}
-				</span>
-			</div>
-		),
-	},
-	{
-		accessorKey: "role",
-		header: "Função",
-		cell: ({ row }) => <RoleBadge role={row.original.role} />,
-	},
-	{
-		accessorKey: "createdAt",
-		header: "Data de Cadastro",
-		cell: ({ row }) => {
-			const date = new Date(row.original.user.createdAt);
-			return <div>{date.toLocaleDateString()}</div>;
-		},
-	},
-	{
-		id: "actions",
-		enableHiding: false,
-		cell: ({ row }) => {
-			const member = row.original;
-
-			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<MoreHorizontal className="h-4 w-4 cursor-pointer hover:opacity-50 transition-all" />
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Ações</DropdownMenuLabel>
-						<DropdownMenuItem asChild>
-							<Link to={`/equipe/cadastro/${member.id}`}>Editar</Link>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			);
-		},
-	},
-];
-
-export function AnamneseWebList() {
-	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-		[],
+	const [selectedAnamneseId, setSelectedAnamneseId] = useState<string | null>(
+		null,
 	);
-	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
-	const [rowSelection, setRowSelection] = React.useState({});
 
-	const { data: members, isLoading } = trpc.member.getAll.useQuery();
+	const { data: anamneses, isLoading } =
+		trpc.anamnesisTemplate.getAll.useQuery();
+
+	const columns: ColumnDef<AnamnesisTemplate>[] = [
+		{
+			accessorKey: "title",
+			header: "Título",
+		},
+		{
+			accessorKey: "description",
+			header: "Descrição",
+			cell: ({ row }) => row.getValue("description") || "N/A",
+		},
+		{
+			accessorKey: "createdAt",
+			header: "Data de Criação",
+			cell: ({ row }) => {
+				const date = row.getValue("createdAt") as string;
+				return new Date(date).toLocaleDateString();
+			},
+		},
+		{
+			accessorKey: "updatedAt",
+			header: "Última Atualização",
+			cell: ({ row }) => {
+				const date = row.getValue("updatedAt") as string;
+				return new Date(date).toLocaleDateString();
+			},
+		},
+		{
+			id: "actions",
+			enableHiding: false,
+			cell: ({ row }) => {
+				const anamnese = row.original;
+
+				return (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" className="h-8 w-8 p-0">
+								<span className="sr-only">Abrir menu</span>
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuLabel>Ações</DropdownMenuLabel>
+							<DropdownMenuItem
+								onClick={() => {
+									setSelectedAnamneseId(anamnese.id);
+									setModalOpen(true);
+								}}
+							>
+								<Eye className="mr-2 h-4 w-4" />
+								Visualizar
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									setSelectedAnamneseId(anamnese.id);
+									setAnamneseFormModalOpen(true);
+								}}
+							>
+								<Edit className="mr-2 h-4 w-4" />
+								Editar
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				);
+			},
+		},
+	];
 
 	const table = useReactTable({
-		data: members || [],
+		data: anamneses || [],
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -142,10 +151,10 @@ export function AnamneseWebList() {
 		<div className="w-full">
 			<div className="flex items-center py-4">
 				<Input
-					placeholder="Filtrar por nome..."
-					value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+					placeholder="Filtrar por título..."
+					value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
 					onChange={(event) =>
-						table.getColumn("name")?.setFilterValue(event.target.value)
+						table.getColumn("title")?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>
@@ -176,32 +185,32 @@ export function AnamneseWebList() {
 							})}
 					</DropdownMenuContent>
 				</DropdownMenu>
+
+				<Button
+					className="ml-4"
+					onClick={() => {
+						setSelectedAnamneseId(null);
+						setAnamneseFormModalOpen(true);
+					}}
+				>
+					Adicionar
+				</Button>
 			</div>
 			<div className="rounded-md border">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
-								{headerGroup.headers.map((header) => {
-									return (
-										<TableHead
-											key={header.id}
-											className={
-												header.column.id === "avatar" ||
-												header.column.id === "actions"
-													? "w-12 max-w-12"
-													: ""
-											}
-										>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									);
-								})}
+								{headerGroup.headers.map((header) => (
+									<TableHead key={header.id}>
+										{header.isPlaceholder
+											? null
+											: flexRender(
+													header.column.columnDef.header,
+													header.getContext(),
+												)}
+									</TableHead>
+								))}
 							</TableRow>
 						))}
 					</TableHeader>
@@ -213,15 +222,7 @@ export function AnamneseWebList() {
 									data-state={row.getIsSelected() && "selected"}
 								>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell
-											key={cell.id}
-											className={
-												cell.column.id === "avatar" ||
-												cell.column.id === "actions"
-													? "w-16 max-w-16"
-													: ""
-											}
-										>
+										<TableCell key={cell.id}>
 											{flexRender(
 												cell.column.columnDef.cell,
 												cell.getContext(),
@@ -263,6 +264,23 @@ export function AnamneseWebList() {
 					</Button>
 				</div>
 			</div>
+			<AnamneseModal
+				isOpened={modalOpen}
+				onClose={() => {
+					setModalOpen(false);
+					setSelectedAnamneseId(null);
+				}}
+				anamneseId={selectedAnamneseId ?? ""}
+			/>
+
+			<AnamneseFormModal
+				isOpened={anamneseFormModalOpen}
+				onClose={() => {
+					setAnamneseFormModalOpen(false);
+					setSelectedAnamneseId(null);
+				}}
+				anamneseId={selectedAnamneseId ?? ""}
+			/>
 		</div>
 	);
 }
