@@ -94,10 +94,7 @@ export function AnamneseList() {
 				return (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="h-8 w-8 p-0">
-								<span className="sr-only">Abrir menu</span>
-								<MoreHorizontal className="h-4 w-4" />
-							</Button>
+							<MoreHorizontal className="h-4 w-4 cursor-pointer hover:opacity-50 transition-all" />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuLabel>Ações</DropdownMenuLabel>

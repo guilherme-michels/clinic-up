@@ -3,6 +3,7 @@ import {
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
+	DialogDescription,
 } from "@/components/ui/dialog";
 import { trpc } from "@/App";
 import {
@@ -54,10 +55,13 @@ export function AnamneseModal({
 			<DialogContent className="max-w-6xl">
 				<DialogHeader>
 					<DialogTitle>Perguntas da Anamnese</DialogTitle>
+					<DialogDescription>
+						Visualize e gerencie as perguntas desta anamnese.
+					</DialogDescription>
 				</DialogHeader>
 				<div className="mt-4 max-h-[500px] overflow-y-auto">
 					{isLoading ? (
-						<div />
+						<div>Carregando...</div>
 					) : anamnese?.questions?.length ? (
 						<>
 							{anamnese.questions.map((question) => (

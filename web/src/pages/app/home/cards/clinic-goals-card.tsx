@@ -1,11 +1,9 @@
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -50,7 +48,7 @@ export function ClinicGoalsCard() {
 							tickLine={false}
 							tickMargin={10}
 							axisLine={false}
-							tickFormatter={(value) => value.slice(0, 3)}
+							tickFormatter={(value: string) => value.slice(0, 3)}
 						/>
 						<ChartTooltip
 							cursor={false}

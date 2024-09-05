@@ -1,7 +1,11 @@
 import { useForm } from "react-hook-form";
 import { FormInput } from "@/components/form-input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { trpc } from "@/App";
 import { useEffect } from "react";
@@ -63,7 +67,6 @@ export function AnamneseFormModal({
 
 	useEffect(() => {
 		if (anamneseData) {
-			console.log("Dados da anamnese recebidos:", anamneseData);
 			reset({
 				...anamneseData,
 				description: anamneseData.description || "",
@@ -103,11 +106,16 @@ export function AnamneseFormModal({
 	return (
 		<Dialog open={isOpened} onOpenChange={onClose}>
 			<DialogContent className="max-w-2xl">
-				<DialogTitle className="text-2xl font-bold mb-4">
+				<DialogTitle className="text-2xl font-bold">
 					{anamneseId
 						? "Editar Template de Anamnese"
 						: "Novo Template de Anamnese"}
 				</DialogTitle>
+				<DialogDescription>
+					{anamneseId
+						? "Edite os detalhes do template de anamnese existente."
+						: "Preencha os detalhes para criar um novo template de anamnese."}
+				</DialogDescription>
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 					<FormInput
 						control={control}
