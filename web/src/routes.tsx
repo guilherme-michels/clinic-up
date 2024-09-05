@@ -24,6 +24,9 @@ import { ClinicUp } from "./pages/clinic-up";
 import { useEffect, useState } from "react";
 import { FinancialDashboard } from "./pages/app/dashboard/financial/financial-dashboard";
 import { PatientDashboard } from "./pages/app/dashboard/patient/patient-dashboard";
+import { Anamnese } from "./pages/app/clinic/anamnese/anamnese";
+import { ClinicPlans } from "./pages/app/clinic/clinic-plans/clinic-plans";
+import { Financial } from "./pages/app/financial/financial";
 
 const ProtectedRoute = () => {
 	const { isAuthenticated, checkAuth } = useAuth();
@@ -91,6 +94,10 @@ export const router = createBrowserRouter([
 						],
 					},
 					{
+						path: "/financeiro",
+						element: <Financial />,
+					},
+					{
 						path: "/pacientes/:id",
 						element: <Patient />,
 						children: [
@@ -137,6 +144,16 @@ export const router = createBrowserRouter([
 					{
 						path: "/minha-clinica",
 						element: <Clinic />,
+						children: [
+							{
+								path: "planos",
+								element: <ClinicPlans />,
+							},
+							{
+								path: "anamnese",
+								element: <Anamnese />,
+							},
+						],
 					},
 					{
 						path: "*",

@@ -108,12 +108,12 @@ export function CalendarCard() {
 			</CardHeader>
 			<CardContent className="flex-grow overflow-y-auto space-y-4">
 				{!isLoading ? (
-					<ul className="space-y-4">
+					<ul className="space-y-2">
 						{upcomingAppointments.map((appointment) => (
 							<li key={appointment.id}>
 								<Button
 									variant="ghost"
-									className="w-full justify-start text-left hover:bg-muted/50 p-3"
+									className="w-full justify-start text-left hover:bg-muted/50 h-12"
 									onClick={() => handleAppointmentClick(appointment.id)}
 								>
 									<div className="flex items-start w-full">

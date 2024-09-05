@@ -106,7 +106,7 @@ export const columns: ColumnDef<MemberWithIncludes>[] = [
 	},
 ];
 
-export function TeamListWeb() {
+export function AnamneseWebList() {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],

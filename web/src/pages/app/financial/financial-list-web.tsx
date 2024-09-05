@@ -33,7 +33,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { MemberIncludeSchema } from "../../../../../../data/schemas";
+import type { MemberIncludeSchema } from "../../../../../data/schemas";
 import { trpc } from "@/App";
 import type { z } from "zod";
 import { RoleBadge } from "@/components/role-badge";
@@ -106,7 +106,7 @@ export const columns: ColumnDef<MemberWithIncludes>[] = [
 	},
 ];
 
-export function TeamListWeb() {
+export function FinancialListWeb() {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],

@@ -117,16 +117,103 @@ model Patient {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  appointments Appointment[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+
+  medicalRecord MedicalRecord?
+  appointments  Appointment[]
+
+  FinancialTransaction FinancialTransaction[]
+  CustomerSatisfaction CustomerSatisfaction[]
+
+  @@map("patients")
+}
+
+model MedicalRecord {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId String  @unique @map("patient_id")
+
+  anamneses Anamnesis[]
+
+  @@map("medical_records")
+}
+
+model Anamnesis {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  medicalRecordId String        @map("medical_record_id")
+
+  template   AnamnesisTemplate @relation(fields: [templateId], references: [id])
+  templateId String            @map("template_id")
+
+  answers AnamnesisAnswer[]
+
+  @@map("anamneses")
+}
+
+model AnamnesisTemplate {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  questions AnamnesisQuestion[]
+  anamneses Anamnesis[]
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
 
-  financialTransactions FinancialTransaction[]
+  @@map("anamnesis_templates")
+}
 
-  satisfactionRatings CustomerSatisfaction[]
+model AnamnesisQuestion {
+  id         String       @id @default(uuid())
+  question   String
+  type       QuestionType
+  options    String[]     @default([])
+  isRequired Boolean      @default(false)
+  order      Int
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
 
-  @@map("patients")
+  template   AnamnesisTemplate @relation(fields: [templateId], references: [id])
+  templateId String            @map("template_id")
+
+  answers AnamnesisAnswer[]
+
+  @@map("anamnesis_questions")
+}
+
+model AnamnesisAnswer {
+  id        String   @id @default(uuid())
+  answer    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  question   AnamnesisQuestion @relation(fields: [questionId], references: [id])
+  questionId String            @map("question_id")
+
+  anamnesis   Anamnesis @relation(fields: [anamnesisId], references: [id])
+  anamnesisId String    @map("anamnesis_id")
+
+  @@map("anamnesis_answers")
+}
+
+enum QuestionType {
+  TEXT
+  BOOLEAN
+  MULTIPLE_CHOICE
+  SINGLE_CHOICE
+  NUMBER
+  DATE
 }
 
 model Appointment {
@@ -174,6 +261,7 @@ model Organization {
   financialTransactions FinancialTransaction[]
 
   customerSatisfactions CustomerSatisfaction[]
+  AnamnesisTemplate     AnamnesisTemplate[]
 
   @@map("organizations")
 }

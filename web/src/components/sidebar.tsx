@@ -7,6 +7,7 @@ import {
 	ChartNoAxesCombined,
 	BadgeDollarSign,
 	FileSliders,
+	Banknote,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -23,6 +24,7 @@ const icons = {
 	Team: <ShieldHalf className="size-4" />,
 	Patients: <Users2 className="size-4" />,
 	Dashboard: <ChartNoAxesCombined className="size-4" />,
+	Financial: <Banknote className="size-4" />,
 	Marketing: <BadgeDollarSign className="size-4" />,
 	Clinic: <FileSliders className="size-4" />,
 	Settings: <Settings className="size-4" />,
@@ -82,6 +84,11 @@ export const Sidebar: React.FC = () => {
 			name: "Pacientes",
 			icon: "Patients",
 			link: "/pacientes",
+		},
+		{
+			name: "Financeiro",
+			icon: "Financial",
+			link: "/financeiro",
 		},
 		{
 			name: "Análise de dados",
