@@ -13,20 +13,8 @@ import {
 	UserSchema,
 	OrganizationSchema,
 	MemberSchema,
-	UserUpdateInputSchema,
-	OrganizationCreateInputSchema,
-	UserCreateInputSchema,
-	OrganizationUpdateInputSchema,
-	MemberCreateInputSchema,
-	MemberUpdateInputSchema,
 	PatientSchema,
-	PatientCreateInputSchema,
-	PatientUpdateInputSchema,
 	AppointmentSchema,
-	AppointmentCreateInputSchema,
-	AppointmentUpdateInputSchema,
-	PatientAnamnesisUpdateInputSchema,
-	PatientAnamnesisCreateInputSchema,
 } from "./schemas/index";
 import { getCurrentUserOrganizationId } from "./utils/current-user-organization";
 import {
@@ -36,6 +24,16 @@ import {
 	updateAnamneseQuestion,
 	createPatient,
 	updatePatient,
+	createUser,
+	updateUser,
+	createOrganization,
+	updateOrganization,
+	createMember,
+	updateMember,
+	createAppointment,
+	updateAppointment,
+	updatePatientAnamnesis,
+	createPatientAnamnesis,
 } from "./zod-types/schemas";
 
 // Criando schemas para signIn e signUp
@@ -56,11 +54,9 @@ dotenv.config();
 
 // Rotas para User
 const userRouter = router({
-	create: publicProcedure
-		.input(UserCreateInputSchema)
-		.mutation(async ({ input }) => {
-			return prisma.user.create({ data: input });
-		}),
+	create: publicProcedure.input(createUser).mutation(async ({ input }) => {
+		return prisma.user.create({ data: input });
+	}),
 
 	getAll: publicProcedure.query(async () => {
 		return prisma.user.findMany();
@@ -72,12 +68,10 @@ const userRouter = router({
 			return prisma.user.findUnique({ where: { id: input } });
 		}),
 
-	update: publicProcedure
-		.input(UserUpdateInputSchema)
-		.mutation(async ({ input }) => {
-			const { id, ...data } = input;
-			return prisma.user.update({ where: { id }, data });
-		}),
+	update: publicProcedure.input(updateUser).mutation(async ({ input }) => {
+		const { id, ...data } = input;
+		return prisma.user.update({ where: { id }, data });
+	}),
 
 	delete: publicProcedure
 		.input(UserSchema.shape.id)
@@ -89,7 +83,7 @@ const userRouter = router({
 // Rotas para Organization
 const organizationRouter = router({
 	create: publicProcedure
-		.input(OrganizationCreateInputSchema)
+		.input(createOrganization)
 		.mutation(async ({ input }) => {
 			return prisma.organization.create({ data: input });
 		}),
@@ -105,7 +99,7 @@ const organizationRouter = router({
 		}),
 
 	update: publicProcedure
-		.input(OrganizationUpdateInputSchema)
+		.input(updateOrganization)
 		.mutation(async ({ input }) => {
 			const { id, ...data } = input;
 			return prisma.organization.update({ where: { id }, data });
@@ -136,11 +130,9 @@ const organizationRouter = router({
 
 // Rotas para Member
 const memberRouter = router({
-	create: publicProcedure
-		.input(MemberCreateInputSchema)
-		.mutation(async ({ input }) => {
-			return prisma.member.create({ data: input });
-		}),
+	create: publicProcedure.input(createMember).mutation(async ({ input }) => {
+		return prisma.member.create({ data: input });
+	}),
 
 	getAll: protectedProcedure.query(async ({ ctx }) => {
 		const organizationId = await getCurrentUserOrganizationId(ctx);
@@ -165,19 +157,17 @@ const memberRouter = router({
 			});
 		}),
 
-	update: publicProcedure
-		.input(MemberUpdateInputSchema)
-		.mutation(async ({ input }) => {
-			const { id, ...data } = input;
-			return prisma.member.update({
-				where: { id },
-				data,
-				include: {
-					user: true,
-					organization: true,
-				},
-			});
-		}),
+	update: publicProcedure.input(updateMember).mutation(async ({ input }) => {
+		const { id, ...data } = input;
+		return prisma.member.update({
+			where: { id },
+			data,
+			include: {
+				user: true,
+				organization: true,
+			},
+		});
+	}),
 
 	delete: publicProcedure
 		.input(MemberSchema.shape.id)
@@ -232,7 +222,7 @@ const patientRouter = router({
 // Rotas para Appointment
 const appointmentRouter = router({
 	create: protectedProcedure
-		.input(AppointmentCreateInputSchema)
+		.input(createAppointment)
 		.mutation(async ({ input, ctx }) => {
 			const organizationId = await getCurrentUserOrganizationId(ctx);
 			const member = await prisma.member.findFirst({
@@ -286,7 +276,7 @@ const appointmentRouter = router({
 		}),
 
 	update: protectedProcedure
-		.input(AppointmentUpdateInputSchema)
+		.input(updateAppointment)
 		.mutation(async ({ input, ctx }) => {
 			const { id, ...data } = input;
 			const organizationId = await getCurrentUserOrganizationId(ctx);
@@ -394,13 +384,13 @@ const anamnesisTemplateRouter = router({
 // Rotas para PatientAnamnesis
 const patientAnamnesisRouter = router({
 	create: protectedProcedure
-		.input(PatientAnamnesisCreateInputSchema)
+		.input(createPatientAnamnesis)
 		.mutation(async ({ input, ctx }) => {
 			const organizationId = await getCurrentUserOrganizationId(ctx);
 			return prisma.patientAnamnesis.create({
 				data: {
-					...input,
-					template: { connect: { id: input.templateId, organizationId } },
+					patientId: input.patientId,
+					templateId: input.templateId,
 				},
 				include: { answers: true, template: true },
 			});
@@ -425,7 +415,7 @@ const patientAnamnesisRouter = router({
 		}),
 
 	update: protectedProcedure
-		.input(PatientAnamnesisUpdateInputSchema)
+		.input(updatePatientAnamnesis)
 		.mutation(async ({ input, ctx }) => {
 			const { id, ...data } = input;
 			const organizationId = await getCurrentUserOrganizationId(ctx);
@@ -570,10 +560,10 @@ const anamnesisQuestionRouter = router({
 	create: protectedProcedure
 		.input(createAnamneseQuestion)
 		.mutation(async ({ input, ctx }) => {
-			const { anamneseId, ...questionData } = input;
+			const { templateId, ...questionData } = input;
 
 			const anamnese = await ctx.prisma.anamnesisTemplate.findUnique({
-				where: { id: anamneseId },
+				where: { id: templateId },
 				include: { organization: true },
 			});
 
@@ -588,7 +578,7 @@ const anamnesisQuestionRouter = router({
 			return ctx.prisma.anamnesisQuestion.create({
 				data: {
 					...questionData,
-					anamnesisTemplate: { connect: { id: anamneseId } },
+					anamnesisTemplate: { connect: { id: templateId } },
 				},
 			});
 		}),

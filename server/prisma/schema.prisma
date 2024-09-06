@@ -10,9 +10,9 @@ datasource db {
 generator zod {
   provider                         = "zod-prisma-types"
   output                           = "../src/schemas"
-  createInputTypes                 = true
+  createInputTypes                 = false
   createModelTypes                 = true
-  addInputTypeValidation           = true
+  addInputTypeValidation           = false
   createOptionalDefaultValuesTypes = false
   tsConfigFilePath                 = "tsconfig.json"
 }
@@ -108,14 +108,29 @@ model Member {
 }
 
 model Patient {
-  id        String   @id @default(uuid())
-  name      String
-  email     String?  @unique
-  phone     String?
-  birthDate DateTime @map("birth_date")
-  address   String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid())
+  name             String
+  email            String?  @unique
+  phone            String?
+  birthDate        DateTime @map("birth_date")
+  gender           Gender?
+  cpf              String?  @unique
+  rg               String?
+  healthPlan       String?
+  profession       String?
+  responsibleName  String?  @map("responsible_name")
+  responsiblePhone String?  @map("responsible_phone")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Campos de endereço
+  cep          String?
+  street       String?
+  number       String?
+  complement   String?
+  neighborhood String?
+  city         String?
+  state        String?
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
@@ -128,6 +143,12 @@ model Patient {
   PatientAnamnesis     PatientAnamnesis[]
 
   @@map("patients")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 model MedicalRecord {
