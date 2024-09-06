@@ -12,7 +12,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { AlignJustify, MoreHorizontal, Search } from "lucide-react";
+import { AlignJustify, MoreHorizontal } from "lucide-react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -84,16 +84,13 @@ export function AnamneseModal({
 				</DialogHeader>
 				<div className="flex items-center space-x-2">
 					<div className="relative flex-grow">
-						<Search
-							className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
-							size={20}
-						/>
 						<Input
 							type="text"
 							placeholder="Buscar pergunta..."
 							className="pr-4 py-2 max-w-sm"
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
+							disabled={filteredQuestions?.length === 0}
 						/>
 					</div>
 					<Button onClick={handleAddQuestion}>Cadastrar pergunta</Button>
@@ -110,8 +107,8 @@ export function AnamneseModal({
 							{filteredQuestions.map((question) => (
 								<Card key={question.id} className="mb-2">
 									<CardHeader className="flex items-center gap-1 space-y-0 border-b py-2 sm:flex-row">
-										<AlignJustify className="mr-4" size={18} />
-										<div className="grid flex-1 gap-1 text-center sm:text-left">
+										<AlignJustify className="mr-4 cursor-grab" size={18} />
+										<div className="grid flex-1 text-center sm:text-left">
 											<CardTitle>{question.question}</CardTitle>
 											<CardDescription>
 												Resposta: {questionType(question.type)}

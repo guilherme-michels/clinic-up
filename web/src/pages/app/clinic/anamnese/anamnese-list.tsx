@@ -1,6 +1,14 @@
 import { useState } from "react";
 
 import {
+	ChevronDown,
+	MoreHorizontal,
+	SlidersHorizontal,
+	Eye,
+	Edit,
+} from "lucide-react";
+
+import {
 	type ColumnDef,
 	type ColumnFiltersState,
 	type SortingState,
@@ -13,14 +21,6 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 
-import {
-	ChevronDown,
-	MoreHorizontal,
-	SlidersHorizontal,
-	Eye,
-	Edit,
-} from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -30,7 +30,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+
 import {
 	Table,
 	TableBody,
@@ -42,27 +42,33 @@ import {
 import { trpc } from "@/App";
 import type { AnamnesisTemplate } from "../../../../../../server/src/schemas";
 import { AnamneseModal } from "./anamnese-modal";
+import { truncateText } from "@/utils";
 import { AnamneseFormModal } from "./anamnese-form-modal";
+import { Input } from "@/components/ui/input";
 
 export function AnamneseList() {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
-	const [modalOpen, setModalOpen] = useState(false);
-	const [anamneseFormModalOpen, setAnamneseFormModalOpen] = useState(false);
-
+	const [isAnamneseQuestionsModalOpen, setIsAnamneseQuestionsModalOpen] =
+		useState(false);
 	const [selectedAnamneseId, setSelectedAnamneseId] = useState<string | null>(
 		null,
 	);
+	const [isAnamneseFormModalOpen, setIsAnamneseFormModalOpen] = useState(false);
 
 	const { data: anamneses, isLoading } =
-		trpc.anamnesisTemplate.getAll.useQuery();
+		trpc.anamnesisTemplate.getSummary.useQuery();
 
 	const columns: ColumnDef<AnamnesisTemplate>[] = [
 		{
 			accessorKey: "title",
 			header: "Título",
+			cell: ({ row }) => {
+				const title = row.getValue("title") as string;
+				return truncateText(title, 20);
+			},
 		},
 		{
 			accessorKey: "description",
@@ -101,7 +107,7 @@ export function AnamneseList() {
 							<DropdownMenuItem
 								onClick={() => {
 									setSelectedAnamneseId(anamnese.id);
-									setModalOpen(true);
+									setIsAnamneseQuestionsModalOpen(true);
 								}}
 							>
 								<Eye className="mr-2 h-4 w-4" />
@@ -110,7 +116,7 @@ export function AnamneseList() {
 							<DropdownMenuItem
 								onClick={() => {
 									setSelectedAnamneseId(anamnese.id);
-									setAnamneseFormModalOpen(true);
+									setIsAnamneseFormModalOpen(true);
 								}}
 							>
 								<Edit className="mr-2 h-4 w-4" />
@@ -142,7 +148,15 @@ export function AnamneseList() {
 		},
 	});
 
-	if (isLoading) return <div>Carregando...</div>;
+	const handleEditClick = (id: string) => {
+		setSelectedAnamneseId(id);
+		setIsAnamneseFormModalOpen(true);
+	};
+
+	const closeAnamneseFormModal = () => {
+		setIsAnamneseFormModalOpen(false);
+		setSelectedAnamneseId(null);
+	};
 
 	return (
 		<div className="w-full">
@@ -187,7 +201,7 @@ export function AnamneseList() {
 					className="ml-4"
 					onClick={() => {
 						setSelectedAnamneseId(null);
-						setAnamneseFormModalOpen(true);
+						setIsAnamneseFormModalOpen(true);
 					}}
 				>
 					Adicionar
@@ -241,7 +255,11 @@ export function AnamneseList() {
 					</TableBody>
 				</Table>
 			</div>
-			<div className="flex items-center justify-end space-x-2 py-4">
+			<div className="flex items-center justify-between space-x-2 py-4">
+				<div className="text-sm text-muted-foreground">
+					Página {table.getState().pagination.pageIndex + 1} de{" "}
+					{table.getPageCount()}
+				</div>
 				<div className="space-x-2">
 					<Button
 						variant="outline"
@@ -261,23 +279,25 @@ export function AnamneseList() {
 					</Button>
 				</div>
 			</div>
-			<AnamneseModal
-				isOpened={modalOpen}
-				onClose={() => {
-					setModalOpen(false);
-					setSelectedAnamneseId(null);
-				}}
-				anamneseId={selectedAnamneseId ?? ""}
-			/>
 
-			<AnamneseFormModal
-				isOpened={anamneseFormModalOpen}
-				onClose={() => {
-					setAnamneseFormModalOpen(false);
-					setSelectedAnamneseId(null);
-				}}
-				anamneseId={selectedAnamneseId ?? ""}
-			/>
+			{selectedAnamneseId && isAnamneseQuestionsModalOpen && (
+				<AnamneseModal
+					isOpened={isAnamneseQuestionsModalOpen}
+					onClose={() => {
+						setIsAnamneseQuestionsModalOpen(false);
+						setSelectedAnamneseId(null);
+					}}
+					anamneseId={selectedAnamneseId}
+				/>
+			)}
+
+			{isAnamneseFormModalOpen && (
+				<AnamneseFormModal
+					isOpened={isAnamneseFormModalOpen}
+					onClose={closeAnamneseFormModal}
+					anamneseId={selectedAnamneseId}
+				/>
+			)}
 		</div>
 	);
 }

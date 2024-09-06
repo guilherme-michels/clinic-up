@@ -42,8 +42,6 @@ export function TeamForm() {
 		}
 	};
 
-	if (isLoading) return <div>Carregando...</div>;
-
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 			<div className="grid grid-cols-2 xl:grid-cols-3 gap-4">

@@ -133,8 +133,6 @@ export function PatientListWeb() {
 		},
 	});
 
-	if (isLoading) return <div>Carregando...</div>;
-
 	return (
 		<div className="w-full">
 			<div className="flex items-center py-4">
@@ -173,6 +171,9 @@ export function PatientListWeb() {
 							})}
 					</DropdownMenuContent>
 				</DropdownMenu>
+				<Link to="cadastro">
+					<Button className="ml-4">Adicionar</Button>
+				</Link>
 			</div>
 			<div className="rounded-md border">
 				<Table>

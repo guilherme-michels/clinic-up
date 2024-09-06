@@ -136,8 +136,6 @@ export function TeamListWeb() {
 		},
 	});
 
-	if (isLoading) return <div>Carregando...</div>;
-
 	return (
 		<div className="w-full">
 			<div className="flex items-center py-4">

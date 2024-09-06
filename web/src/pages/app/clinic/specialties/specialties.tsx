@@ -1,6 +1,6 @@
 import { Developing } from "@/components/developing";
 
-export function ClinicPlans() {
+export function Specialties() {
 	return (
 		<div>
 			<Developing />

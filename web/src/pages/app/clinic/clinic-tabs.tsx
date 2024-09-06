@@ -16,6 +16,9 @@ export function ClinicTabs() {
 		if (currentPath.includes("/minha-clinica/anamnese")) {
 			return "anamnese";
 		}
+		if (currentPath.includes("/minha-clinica/especialidades")) {
+			return "specialties";
+		}
 		return "data";
 	};
 
@@ -30,6 +33,9 @@ export function ClinicTabs() {
 				</TabsTrigger>
 				<TabsTrigger value="anamnese" asChild>
 					<Link to={"/minha-clinica/anamnese"}>Anamnese</Link>
+				</TabsTrigger>
+				<TabsTrigger value="specialties" asChild>
+					<Link to={"/minha-clinica/especialidades"}>Especialidades</Link>
 				</TabsTrigger>
 			</TabsList>
 		</Tabs>

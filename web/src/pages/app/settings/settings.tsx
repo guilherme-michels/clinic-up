@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { SettingsTabs } from "./settings-tabs";
+import { Developing } from "@/components/developing";
 
 export function Settings() {
 	return (
@@ -11,6 +12,8 @@ export function Settings() {
 				</h1>
 
 				<SettingsTabs />
+
+				<Developing />
 			</div>
 		</>
 	);

@@ -6,7 +6,7 @@ export function SettingsTabs() {
 	const currentPath = location.pathname;
 
 	const getActiveTab = () => {
-		if (currentPath.includes("/confirugacoes")) {
+		if (currentPath.includes("/configuracoes")) {
 			return "settings";
 		}
 		return "list";

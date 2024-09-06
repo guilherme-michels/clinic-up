@@ -3,6 +3,7 @@ import { Calendar, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HomeCardSkeleton } from "./home-card-skeleton";
 import { Button } from "@/components/ui/button";
+import { truncateText } from "@/utils";
 
 // Dados simulados de compromissos
 const upcomingAppointments = [
@@ -46,23 +47,8 @@ const upcomingAppointments = [
 	},
 ];
 
-function useWindowSize() {
-	const [size, setSize] = useState([0, 0]);
-	useEffect(() => {
-		function updateSize() {
-			setSize([window.innerWidth, window.innerHeight]);
-		}
-		window.addEventListener("resize", updateSize);
-		updateSize();
-		return () => window.removeEventListener("resize", updateSize);
-	}, []);
-	return size;
-}
-
 export function CalendarCard() {
 	const [isLoading, setIsLoading] = useState(true);
-	const [width] = useWindowSize();
-	const [maxDescriptionLength, setMaxDescriptionLength] = useState(0);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -71,11 +57,6 @@ export function CalendarCard() {
 
 		return () => clearTimeout(timer);
 	}, []);
-
-	useEffect(() => {
-		const newMaxLength = Math.max(30, Math.floor(width / 26));
-		setMaxDescriptionLength(newMaxLength);
-	}, [width]);
 
 	const formatDate = (dateString: string) => {
 		const date = new Date(dateString);
@@ -90,14 +71,6 @@ export function CalendarCard() {
 	const handleAppointmentClick = (id: number) => {
 		console.log(`Compromisso ${id} clicado`);
 	};
-
-	const truncateDescription = useCallback(
-		(description: string) => {
-			if (description.length <= maxDescriptionLength) return description;
-			return `${description.slice(0, maxDescriptionLength)}...`;
-		},
-		[maxDescriptionLength],
-	);
 
 	return (
 		<Card className="max-h-[400px] flex flex-col">
@@ -122,7 +95,7 @@ export function CalendarCard() {
 												{appointment.title}
 											</span>
 											<span className="text-xs text-muted-foreground block">
-												{truncateDescription(appointment.description)}
+												{truncateText(appointment.description, 35)}
 											</span>
 										</div>
 										<div className="flex flex-col items-end min-fit shrink-0">

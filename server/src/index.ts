@@ -34,6 +34,8 @@ import {
 	updateAnamneseTemplate,
 	createAnamneseQuestion,
 	updateAnamneseQuestion,
+	createPatient,
+	updatePatient,
 } from "./zod-types/schemas";
 
 // Criando schemas para signIn e signUp
@@ -193,7 +195,7 @@ const memberRouter = router({
 // Rotas para Patient
 const patientRouter = router({
 	create: protectedProcedure
-		.input(PatientCreateInputSchema)
+		.input(createPatient)
 		.mutation(async ({ input, ctx }) => {
 			const organizationId = await getCurrentUserOrganizationId(ctx);
 			return prisma.patient.create({ data: { ...input, organizationId } });
@@ -212,7 +214,7 @@ const patientRouter = router({
 		}),
 
 	update: protectedProcedure
-		.input(PatientUpdateInputSchema)
+		.input(updatePatient)
 		.mutation(async ({ input, ctx }) => {
 			const { id, ...data } = input;
 			const organizationId = await getCurrentUserOrganizationId(ctx);
@@ -339,6 +341,24 @@ const anamnesisTemplateRouter = router({
 			where: { organizationId },
 			include: { questions: true },
 		});
+	}),
+
+	getSummary: publicProcedure.query(async ({ ctx }) => {
+		const organizationId = await getCurrentUserOrganizationId(ctx);
+		const summaries = await ctx.prisma.anamnesisTemplate.findMany({
+			where: { organizationId },
+			select: {
+				id: true,
+				title: true,
+				description: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+			orderBy: {
+				createdAt: "asc",
+			},
+		});
+		return summaries;
 	}),
 
 	getById: protectedProcedure

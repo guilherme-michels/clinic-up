@@ -1,3 +1,4 @@
+import { Developing } from "@/components/developing";
 import { Helmet } from "react-helmet-async";
 
 export function Marketing() {
@@ -9,7 +10,7 @@ export function Marketing() {
 					Marketing
 				</h1>
 
-				<div className="grid grid-cols-4 gap-4">teste</div>
+				<Developing />
 			</div>
 		</>
 	);

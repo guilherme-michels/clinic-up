@@ -11,27 +11,16 @@ export interface InputProps
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
 	({ className, type, error, label, required, ...props }, ref) => {
 		return (
-			<div className="relative flex justify-center flex-col w-full">
-				{label && (
-					<div className="text-xs px-1 mb-1 text-foreground">
-						{label}
-						{error && (
-							<span className="text-red-600 text-xs mt-1 ml-2">{error}</span>
-						)}
-					</div>
+			<input
+				type={type}
+				className={cn(
+					"flex h-10 w-full border-[1px] rounded-md bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+					error ? "border-red-600" : "border-zinc-300",
+					className,
 				)}
-
-				<input
-					type={type}
-					className={cn(
-						"flex h-10 w-full border-[1px] rounded-md bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-						error ? "border-red-600" : "border-zinc-300",
-						className,
-					)}
-					ref={ref}
-					{...props}
-				/>
-			</div>
+				ref={ref}
+				{...props}
+			/>
 		);
 	},
 );

@@ -20,7 +20,7 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 interface AnamneseFormModalProps {
 	isOpened: boolean;
 	onClose: () => void;
-	anamneseId?: string;
+	anamneseId?: string | null;
 }
 
 export function AnamneseFormModal({
@@ -68,14 +68,10 @@ export function AnamneseFormModal({
 	useEffect(() => {
 		if (anamneseData) {
 			reset({
-				...anamneseData,
+				title: anamneseData.title,
 				description: anamneseData.description || "",
-				createdAt: anamneseData.createdAt
-					? new Date(anamneseData.createdAt)
-					: undefined,
-				updatedAt: anamneseData.updatedAt
-					? new Date(anamneseData.updatedAt)
-					: undefined,
+				createdAt: new Date(anamneseData.createdAt),
+				updatedAt: new Date(anamneseData.updatedAt),
 			});
 		} else {
 			reset({
@@ -93,9 +89,11 @@ export function AnamneseFormModal({
 				description: data.description,
 			};
 			updateAnamnese.mutate(updateData);
+			reset();
 		} else {
 			const { title, description } = data;
 			createAnamnese.mutate({ title, description });
+			reset();
 		}
 	};
 
