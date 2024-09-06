@@ -4,80 +4,110 @@ import { FormInput } from "@/components/form-input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { trpc } from "@/App";
+import { FormSelect } from "@/components/form-select";
 import {
-	type Organization,
-	OrganizationSchema,
-} from "../../../../../../server/src/schemas";
+	type AnamneseQuestionForm,
+	anamneseQuestionSchema,
+} from "../../../../../../server/src/zod-types/schemas";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 
 interface AnamneseQuestionFormModalProps {
-	isEditing: boolean;
-	onSave: () => void;
+	isOpened: boolean;
+	onClose: () => void;
+	onSave: (data: AnamneseQuestionForm) => void;
+	anamneseId: string;
 }
 
+const questionTypeOptions = [
+	{ value: "TEXT", name: "Texto" },
+	{ value: "BOOLEAN", name: "Sim/Não" },
+	{ value: "MULTIPLE_CHOICE", name: "Múltipla Escolha" },
+	{ value: "SINGLE_CHOICE", name: "Escolha Única" },
+	{ value: "NUMBER", name: "Número" },
+	{ value: "DATE", name: "Data" },
+];
+
 export function AnamneseQuestionFormModal({
-	isEditing,
+	isOpened,
+	onClose,
 	onSave,
+	anamneseId,
 }: AnamneseQuestionFormModalProps) {
-	const { data: clinicData, isLoading } =
-		trpc.organization.getCurrentUserOrganization.useQuery();
-	const updateClinicData = trpc.organization.update.useMutation({
+	const utils = trpc.useContext();
+
+	const createQuestion = trpc.anamnesisQuestion.create.useMutation({
 		onSuccess: () => {
-			toast.success("Dados da clínica atualizados com sucesso!");
+			toast.success("Pergunta adicionada com sucesso!");
+			utils.anamnesisTemplate.invalidate();
+			onClose();
 		},
 		onError: (error) => {
-			toast.error(`Erro ao atualizar dados: ${error.message}`);
+			toast.error(`Erro ao adicionar pergunta: ${error.message}`);
 		},
 	});
 
-	const { control, handleSubmit } = useForm<Organization>({
-		resolver: zodResolver(OrganizationSchema),
-		defaultValues: clinicData
-			? {
-					...clinicData,
-					createdAt: new Date(clinicData.createdAt),
-					updatedAt: new Date(clinicData.updatedAt),
-				}
-			: {},
+	const { control, handleSubmit, reset } = useForm<AnamneseQuestionForm>({
+		resolver: zodResolver(anamneseQuestionSchema),
+		defaultValues: {
+			question: "",
+			questionType: "TEXT",
+		},
 	});
 
-	const onSubmit = (data: Organization) => {
-		updateClinicData.mutate(data);
-		onSave(); // Chama a função onSave após a mutação bem-sucedida
+	const onSubmit = (data: AnamneseQuestionForm) => {
+		createQuestion.mutate({ ...data, templateId: anamneseId });
+		onSave(data);
 	};
 
-	if (isLoading) {
-		return <div>Carregando dados da clínica...</div>;
-	}
-
 	return (
-		<div className="mx-auto w-full">
-			<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-				<div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
-					<FormInput
-						control={control}
-						name="name"
-						label="Nome da Clínica"
-						required
-						disabled={!isEditing}
-					/>
-					<FormInput
-						control={control}
-						name="slug"
-						label="Slug"
-						required
-						disabled={!isEditing}
-					/>
-				</div>
+		<Dialog open={isOpened} onOpenChange={onClose}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Nova pergunta</DialogTitle>
+					<DialogDescription>
+						Cadastre uma nova pergunta no template.
+					</DialogDescription>
+				</DialogHeader>
+				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+					<div className="grid grid-cols-1 gap-4">
+						<FormInput
+							control={control}
+							name="question"
+							label="Pergunta"
+							placeholder="Digite a pergunta"
+							required
+						/>
 
-				{isEditing && (
+						<FormSelect
+							control={control}
+							name="questionType"
+							label="Tipo de Resposta"
+							options={questionTypeOptions}
+							required
+						/>
+					</div>
+
 					<div className="flex justify-end space-x-2">
-						<Button type="button" variant="outline" onClick={onSave}>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => {
+								reset();
+								onClose();
+							}}
+						>
 							Cancelar
 						</Button>
-						<Button type="submit">Salvar</Button>
+						<Button type="submit">Adicionar</Button>
 					</div>
-				)}
-			</form>
-		</div>
+				</form>
+			</DialogContent>
+		</Dialog>
 	);
 }

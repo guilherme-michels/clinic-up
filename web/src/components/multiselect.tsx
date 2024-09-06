@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import { cn } from "../lib/utils";
 import {
 	Select,
@@ -18,9 +17,9 @@ interface MultiselectProps {
 	placeholder?: string;
 	required?: boolean;
 	disabled?: boolean;
-	defaultValue?: string[];
-	value?: string[];
-	onChange: (value: string[]) => void;
+	value?: string;
+	onChange: (value: string) => void;
+	onBlur?: () => void;
 	error?: string | null;
 }
 
@@ -28,33 +27,28 @@ export function Multiselect({
 	options,
 	label,
 	placeholder,
-	required,
 	disabled,
-	defaultValue,
 	value,
 	onChange,
+	onBlur,
 	error,
 }: MultiselectProps) {
-	const [selectedOptions, setSelectedOptions] = useState<string[]>(
-		defaultValue || [],
-	);
+	const [selectedOptions, setSelectedOptions] = useState<string>(value || "");
 
 	useEffect(() => {
-		if (defaultValue) {
-			setSelectedOptions(defaultValue);
-		}
-	}, [defaultValue]);
-
-	useEffect(() => {
-		if (value) {
-			setSelectedOptions(value);
-		}
+		setSelectedOptions(value || "");
 	}, [value]);
 
-	const handleOptionChange = (value: string) => {
-		const newSelectedOptions = selectedOptions.includes(value)
-			? selectedOptions.filter((option) => option !== value)
-			: [...selectedOptions, value];
+	const handleOptionChange = (newValue: string) => {
+		const newSelectedOptions = selectedOptions.includes(newValue)
+			? selectedOptions
+					.split(",")
+					.filter((v) => v.trim() !== newValue)
+					.join(", ")
+			: selectedOptions
+				? `${selectedOptions}, ${newValue}`
+				: newValue;
+
 		setSelectedOptions(newSelectedOptions);
 		onChange(newSelectedOptions);
 	};
@@ -62,17 +56,23 @@ export function Multiselect({
 	return (
 		<div className={"flex w-full flex-col"}>
 			{label && (
-				<div className="text-xs px-2 text-zinc">
+				<div className="text-xs px-1 text-zinc">
 					{label}
-					{required && <span className="ml-1">*</span>}
-					{error && <span className="-600 text-xs mt-1 ml-2">{error}</span>}
+					{error && (
+						<span className="text-red-600 text-xs mt-1 ml-2">{error}</span>
+					)}
 				</div>
 			)}
 
 			<Select
 				onValueChange={handleOptionChange}
 				disabled={disabled || options.length === 0}
-				value={selectedOptions.join(", ")}
+				value={selectedOptions}
+				onOpenChange={(open) => {
+					if (!open && onBlur) {
+						onBlur();
+					}
+				}}
 			>
 				<SelectTrigger
 					className={cn("mt-1 w-full text-xs ", error && "border-red")}

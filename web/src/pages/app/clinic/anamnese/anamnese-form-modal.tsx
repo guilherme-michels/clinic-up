@@ -10,12 +10,12 @@ import { toast } from "sonner";
 import { trpc } from "@/App";
 import { useEffect } from "react";
 
-import { anamneseTemplateSchema } from "../../../../../../server/src/zod-types/schemas";
+import {
+	type AnamneseTemplateForm,
+	anamneseTemplateSchema,
+} from "../../../../../../server/src/zod-types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import type { z } from "zod";
-
-type AnamneseTemplateForm = z.infer<typeof anamneseTemplateSchema>;
 
 interface AnamneseFormModalProps {
 	isOpened: boolean;
