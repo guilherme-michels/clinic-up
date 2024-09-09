@@ -188,7 +188,12 @@ const patientRouter = router({
 		.input(createPatient)
 		.mutation(async ({ input, ctx }) => {
 			const organizationId = await getCurrentUserOrganizationId(ctx);
-			return prisma.patient.create({ data: { ...input, organizationId } });
+			const patientData = {
+				...input,
+				birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
+				organizationId,
+			};
+			return prisma.patient.create({ data: patientData });
 		}),
 
 	getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -208,7 +213,14 @@ const patientRouter = router({
 		.mutation(async ({ input, ctx }) => {
 			const { id, ...data } = input;
 			const organizationId = await getCurrentUserOrganizationId(ctx);
-			return prisma.patient.update({ where: { id, organizationId }, data });
+			const patientData = {
+				...data,
+				birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
+			};
+			return prisma.patient.update({
+				where: { id, organizationId },
+				data: patientData,
+			});
 		}),
 
 	delete: protectedProcedure

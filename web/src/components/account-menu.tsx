@@ -33,7 +33,7 @@ export function AccountMenu() {
 				<DropdownMenuTrigger asChild>
 					<Button
 						variant="outline"
-						className="flex select-none items-center gap-2"
+						className="flex select-none items-center gap-2 h-10"
 					>
 						{isLoadingProfile ? (
 							<Skeleton className="h-4 w-40" />

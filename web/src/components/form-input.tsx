@@ -5,24 +5,17 @@ import {
 	type Path,
 } from "react-hook-form";
 import { Input, type InputProps } from "./ui/input";
+import InputMask from "react-input-mask";
+import { cn } from "@/lib/utils";
 
 type FormInputProps<T extends FieldValues> = InputProps & {
 	control: Control<T>;
 	name: Path<T>;
 	label: string;
 	required: boolean;
+	type?: string;
+	mask?: "date" | "cpf" | "rg";
 };
-
-function formatDate(date: Date | string): string {
-	if (date instanceof Date) {
-		return date.toLocaleDateString("pt-BR", {
-			day: "2-digit",
-			month: "2-digit",
-			year: "numeric",
-		});
-	}
-	return date;
-}
 
 export function FormInput<T extends FieldValues>({
 	control,
@@ -30,6 +23,7 @@ export function FormInput<T extends FieldValues>({
 	label,
 	required,
 	type,
+	mask,
 	...props
 }: FormInputProps<T>) {
 	return (
@@ -41,28 +35,30 @@ export function FormInput<T extends FieldValues>({
 					{label && (
 						<div className="text-xs px-1 mb-1 text-foreground">{label}</div>
 					)}
-					<Input
-						{...field}
-						value={type === "date" ? formatDate(field.value) : field.value}
-						id={name}
-						type={type === "date" ? "text" : type}
-						placeholder={type === "date" ? "--/--/----" : undefined}
-						pattern={type === "date" ? "\\d{2}/\\d{2}/\\d{4}" : undefined}
-						required={required}
-						onChange={(event) => {
-							if (type === "date") {
-								const value = event.target.value.replace(/\D/g, "");
-								const formattedValue = value
-									.replace(/^(\d{2})(\d)/, "$1/$2")
-									.replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3")
-									.slice(0, 10);
-								field.onChange(formattedValue);
-							} else {
-								field.onChange(event);
-							}
-						}}
-						{...props}
-					/>
+					{mask ? (
+						<InputMask
+							mask={getMask(mask)}
+							maskChar={null}
+							value={field.value}
+							onChange={field.onChange}
+							className={cn(
+								"flex h-10 w-full border-[1px] rounded-md bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+								fieldState.error ? "border-red-600" : "border-zinc-300",
+							)}
+						/>
+					) : (
+						<Input
+							{...field}
+							{...props}
+							type={type}
+							id={name}
+							required={required}
+							className={cn(
+								"flex h-10 w-full border-[1px] rounded-md bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+								fieldState.error ? "border-red-600" : "border-zinc-300",
+							)}
+						/>
+					)}
 					{fieldState.error && (
 						<span className="text-sm text-red-500">
 							{fieldState.error.message}
@@ -72,4 +68,39 @@ export function FormInput<T extends FieldValues>({
 			)}
 		/>
 	);
+}
+
+function getMask(maskType: string): string {
+	switch (maskType) {
+		case "date":
+			return "99/99/9999";
+		case "cpf":
+			return "999.999.999-99";
+		case "rg":
+			return "9999999999";
+		default:
+			return "";
+	}
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+function formatDateValue(value: any, type?: string): string {
+	if (type === "date" && value instanceof Date) {
+		const day = value.getDate().toString().padStart(2, "0");
+		const month = (value.getMonth() + 1).toString().padStart(2, "0");
+		const year = value.getFullYear();
+		return `${day}/${month}/${year}`;
+	}
+	return value ?? "";
+}
+
+function formatDateInput(value: string): string {
+	const cleanValue = value.replace(/\D/g, "");
+	const day = cleanValue.slice(0, 2);
+	const month = cleanValue.slice(2, 4);
+	const year = cleanValue.slice(4, 8);
+
+	if (cleanValue.length <= 2) return day;
+	if (cleanValue.length <= 4) return `${day}/${month}`;
+	return `${day}/${month}/${year}`;
 }

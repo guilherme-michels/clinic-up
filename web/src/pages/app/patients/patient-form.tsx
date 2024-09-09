@@ -1,39 +1,49 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Patient, PatientSchema } from "../../../../../server/src/schemas";
 import { FormInput } from "@/components/form-input";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/App";
 import { toast } from "sonner";
+import { FormSelect } from "@/components/form-select";
+import {
+	createPatient,
+	type PatientFormSchema,
+} from "../../../../../server/src/zod-types/schemas";
+import { useEffect } from "react";
+import { format, parse, isValid } from "date-fns";
 
 export function PatientForm() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 
-	const { control, handleSubmit, reset } = useForm<Patient>({
-		resolver: zodResolver(PatientSchema),
-		defaultValues: {
-			name: "",
-			email: null,
-			phone: null,
-			birthDate: new Date(),
-			gender: "MALE",
-			cpf: "",
-			rg: "",
-			healthPlan: "",
-			profession: "",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			organizationId: "",
-		},
+	const {
+		control,
+		handleSubmit,
+		setValue,
+		formState: { errors },
+	} = useForm<PatientFormSchema>({
+		resolver: zodResolver(createPatient),
+		defaultValues: {},
 	});
 
 	const { data: patient, isLoading: isLoadingPatient } =
 		trpc.patient.getById.useQuery(id ?? "", {
 			enabled: !!id,
 		});
+
+	useEffect(() => {
+		if (patient) {
+			for (const [key, value] of Object.entries(patient)) {
+				if (key === "birthDate" && value) {
+					const formattedDate = format(new Date(value), "dd/MM/yyyy");
+					setValue("birthDate", formattedDate);
+				} else {
+					setValue(key as keyof PatientFormSchema, value ?? "");
+				}
+			}
+		}
+	}, [patient, setValue]);
 
 	const createMutation = trpc.patient.create.useMutation({
 		onSuccess: () => {
@@ -52,33 +62,32 @@ export function PatientForm() {
 	const updateMutation = trpc.patient.update.useMutation({
 		onSuccess: () => {
 			toast.success("Paciente atualizado com sucesso!");
-			navigate("/patients");
+			navigate("/pacientes");
 		},
 		onError: (error: unknown) => {
 			if (error instanceof Error) {
-				toast.error(`Erro ao criar paciente: ${error.message}`);
+				toast.error(`Erro ao atualizar paciente: ${error.message}`);
 			} else {
-				toast.error("Erro desconhecido ao criar paciente");
+				toast.error("Erro desconhecido ao atualizar paciente");
 			}
 		},
 	});
 
-	useEffect(() => {
-		if (patient) {
-			reset({
-				...patient,
-				birthDate: new Date(patient.birthDate),
-				createdAt: new Date(patient.createdAt),
-				updatedAt: new Date(patient.updatedAt),
-			});
-		}
-	}, [patient, reset]);
+	const onSubmit = (data: PatientFormSchema) => {
+		const formattedData = {
+			...data,
+			birthDate: data.birthDate
+				? (() => {
+						const parsedDate = parse(data.birthDate, "dd/MM/yyyy", new Date());
+						return isValid(parsedDate) ? parsedDate.toISOString() : undefined;
+					})()
+				: undefined,
+		};
 
-	const onSubmit = (data: Patient) => {
 		if (id) {
-			updateMutation.mutate({ ...data, id });
+			updateMutation.mutate({ ...formattedData, id });
 		} else {
-			createMutation.mutate(data);
+			createMutation.mutate(formattedData);
 		}
 	};
 
@@ -109,65 +118,72 @@ export function PatientForm() {
 						control={control}
 						name="birthDate"
 						label="Data de Nascimento"
+						required
 						type="date"
+						mask="date"
+					/>
+
+					<FormSelect
+						control={control}
+						name="gender"
+						label="Sexo"
+						options={[
+							{ value: "MALE", name: "Masculino" },
+							{ value: "FEMALE", name: "Feminino" },
+							{ value: "OTHER", name: "Outro" },
+						]}
 						required
 					/>
-					<FormInput control={control} name="gender" label="Sexo" required />
-					<FormInput control={control} name="cpf" label="CPF" required />
-					<FormInput control={control} name="rg" label="RG" />
+
 					<FormInput
+						control={control}
+						name="cpf"
+						label="CPF"
+						required
+						mask="cpf"
+					/>
+					<FormInput
+						control={control}
+						name="rg"
+						label="RG"
+						required
+						mask="rg"
+					/>
+					<FormSelect
 						control={control}
 						name="healthPlan"
 						label="Plano de Saúde"
+						options={[{ value: "PARTICULAR", name: "Particular" }]}
 					/>
-					<FormInput control={control} name="profession" label="Profissão" />
+					<FormInput
+						control={control}
+						name="profession"
+						label="Profissão"
+						required
+					/>
 				</div>
 			</section>
 
 			<section>
 				<h2 className="text-base font-semibold mb-2">Endereço</h2>
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+					<FormInput control={control} name="cep" label="CEP" required />
+					<FormInput control={control} name="street" label="Rua" required />
+					<FormInput control={control} name="number" label="Número" required />
 					<FormInput
 						control={control}
-						name="address.cep"
-						label="CEP"
-						required
-					/>
-					<FormInput
-						control={control}
-						name="address.street"
-						label="Rua"
-						required
-					/>
-					<FormInput
-						control={control}
-						name="address.number"
-						label="Número"
-						required
-					/>
-					<FormInput
-						control={control}
-						name="address.complement"
+						name="complement"
 						label="Complemento"
+						required
 					/>
 					<FormInput
 						control={control}
-						name="address.neighborhood"
+						name="neighborhood"
 						label="Bairro"
 						required
 					/>
-					<FormInput
-						control={control}
-						name="address.city"
-						label="Cidade"
-						required
-					/>
-					<FormInput
-						control={control}
-						name="address.state"
-						label="Estado"
-						required
-					/>
+					<FormInput control={control} name="city" label="Cidade" required />
+					<FormInput control={control} name="state" label="Estado" required />
 				</div>
 			</section>
 
@@ -176,33 +192,40 @@ export function PatientForm() {
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
 					<FormInput
 						control={control}
-						name="responsiblePerson.name"
+						name="responsibleName"
 						label="Nome do Responsável"
+						required
 					/>
 					<FormInput
 						control={control}
-						name="responsiblePerson.relationship"
-						label="Relação com o Paciente"
-					/>
-					<FormInput
-						control={control}
-						name="responsiblePerson.phone"
+						name="responsiblePhone"
 						label="Telefone do Responsável"
+						required
 					/>
 				</div>
 			</section>
 
-			<div className="flex justify-end space-x-2">
-				<Button
-					type="button"
-					variant="outline"
-					onClick={() => navigate("/patients")}
-				>
-					Cancelar
-				</Button>
-				<Button type="submit">
-					{id ? "Atualizar Paciente" : "Adicionar Paciente"}
-				</Button>
+			<div className="flex justify-between space-x-2">
+				{id ? (
+					<Button type="button" onClick={() => navigate(`/pacientes/${id}`)}>
+						Verificar perfil
+					</Button>
+				) : (
+					<div />
+				)}
+
+				<div className="flex items-center gap-4">
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => navigate("/pacientes")}
+					>
+						Cancelar
+					</Button>
+					<Button type="submit" onClick={() => console.log(errors)}>
+						{id ? "Atualizar Paciente" : "Adicionar Paciente"}
+					</Button>
+				</div>
 			</div>
 		</form>
 	);

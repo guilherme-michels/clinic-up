@@ -25,7 +25,7 @@ export const updateAnamneseTemplate = anamneseTemplateSchema
 	})
 	.omit({ createdAt: true });
 
-export type AnamneseTemplateForm = z.infer<typeof anamneseTemplateSchema>;
+export type AnamneseTemplateFormSchema = z.infer<typeof anamneseTemplateSchema>;
 
 // AnamneseQuestion
 export const anamneseQuestionSchema = z.object({
@@ -47,14 +47,14 @@ export const updateAnamneseQuestion = anamneseQuestionSchema
 	})
 	.omit({ createdAt: true });
 
-export type AnamneseQuestionForm = z.infer<typeof anamneseQuestionSchema>;
+export type AnamneseQuestionFormSchema = z.infer<typeof anamneseQuestionSchema>;
 
 // Patient
 export const patientSchema = z.object({
 	name: z.string().min(1, "Nome é obrigatório"),
 	email: z.string().email("E-mail inválido").nullable(),
 	phone: z.string().nullable(),
-	birthDate: z.date(),
+	birthDate: z.string().optional().nullable(),
 	gender: GenderSchema,
 	cpf: z.string().optional(),
 	rg: z.string().optional(),
@@ -84,7 +84,7 @@ export const updatePatient = patientSchema
 	})
 	.omit({ createdAt: true });
 
-export type PatientForm = z.infer<typeof patientSchema>;
+export type PatientFormSchema = z.infer<typeof patientSchema>;
 
 // User
 export const userSchema = z.object({
@@ -108,7 +108,7 @@ export const updateUser = userSchema
 	})
 	.omit({ createdAt: true });
 
-export type UserForm = z.infer<typeof userSchema>;
+export type UserFormSchema = z.infer<typeof userSchema>;
 
 // Organization
 export const organizationSchema = z.object({
@@ -134,7 +134,7 @@ export const updateOrganization = organizationSchema
 	})
 	.omit({ createdAt: true });
 
-export type OrganizationForm = z.infer<typeof organizationSchema>;
+export type OrganizationFormSchema = z.infer<typeof organizationSchema>;
 
 // Member
 export const memberSchema = z.object({
@@ -151,7 +151,7 @@ export const updateMember = memberSchema.extend({
 	id: z.string(),
 });
 
-export type MemberForm = z.infer<typeof memberSchema>;
+export type MemberFormSchema = z.infer<typeof memberSchema>;
 
 // Appointment
 export const appointmentSchema = z.object({
@@ -177,7 +177,7 @@ export const updateAppointment = appointmentSchema
 	})
 	.omit({ createdAt: true });
 
-export type AppointmentForm = z.infer<typeof appointmentSchema>;
+export type AppointmentFormSchema = z.infer<typeof appointmentSchema>;
 
 // PatientAnamnesis
 export const PatientAnamnesisSchema = z.object({
@@ -197,4 +197,4 @@ export const updatePatientAnamnesis = PatientAnamnesisSchema.extend({
 	id: z.string(),
 }).omit({ createdAt: true });
 
-export type PatientAnamnesisForm = z.infer<typeof PatientAnamnesisSchema>;
+export type PatientAnamnesisFormSchema = z.infer<typeof PatientAnamnesisSchema>;
