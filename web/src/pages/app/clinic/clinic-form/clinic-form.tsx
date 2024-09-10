@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { trpc } from "@/App";
 import {
-	type Organization,
-	OrganizationSchema,
-} from "../../../../../../server/src/schemas";
+	createOrganization,
+	type OrganizationFormSchema,
+} from "../../../../../../server/src/zod-types/schemas";
 
 interface ClinicDataProps {
 	isEditing: boolean;
@@ -26,8 +26,8 @@ export function ClinicForm({ isEditing, onSave }: ClinicDataProps) {
 		},
 	});
 
-	const { control, handleSubmit } = useForm<Organization>({
-		resolver: zodResolver(OrganizationSchema),
+	const { control, handleSubmit } = useForm<OrganizationFormSchema>({
+		resolver: zodResolver(createOrganization),
 		defaultValues: clinicData
 			? {
 					...clinicData,
@@ -37,9 +37,9 @@ export function ClinicForm({ isEditing, onSave }: ClinicDataProps) {
 			: {},
 	});
 
-	const onSubmit = (data: Organization) => {
+	const onSubmit = (data: OrganizationFormSchema) => {
 		updateClinicData.mutate(data);
-		onSave(); // Chama a função onSave após a mutação bem-sucedida
+		onSave();
 	};
 
 	if (isLoading) {
@@ -61,6 +61,63 @@ export function ClinicForm({ isEditing, onSave }: ClinicDataProps) {
 						control={control}
 						name="slug"
 						label="Slug"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="cnpj"
+						label="CNPJ"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="email"
+						label="E-mail"
+						type="email"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="phone"
+						label="Telefone"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="address"
+						label="Endereço"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="city"
+						label="Cidade"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="state"
+						label="Estado"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="zipCode"
+						label="CEP"
+						required
+						disabled={!isEditing}
+					/>
+					<FormInput
+						control={control}
+						name="website"
+						label="Website"
 						required
 						disabled={!isEditing}
 					/>

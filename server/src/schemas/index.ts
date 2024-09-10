@@ -1,9 +1,53 @@
 import { z } from 'zod';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 /////////////////////////////////////////
 // HELPER FUNCTIONS
 /////////////////////////////////////////
+
+// JSON
+//------------------------------------------------------
+
+export type NullableJsonInput = Prisma.JsonValue | null | 'JsonNull' | 'DbNull' | Prisma.NullTypes.DbNull | Prisma.NullTypes.JsonNull;
+
+export const transformJsonNull = (v?: NullableJsonInput) => {
+  if (!v || v === 'DbNull') return Prisma.DbNull;
+  if (v === 'JsonNull') return Prisma.JsonNull;
+  return v;
+};
+
+export const JsonValueSchema: z.ZodType<Prisma.JsonValue> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.literal(null),
+    z.record(z.lazy(() => JsonValueSchema.optional())),
+    z.array(z.lazy(() => JsonValueSchema)),
+  ])
+);
+
+export type JsonValueType = z.infer<typeof JsonValueSchema>;
+
+export const NullableJsonValue = z
+  .union([JsonValueSchema, z.literal('DbNull'), z.literal('JsonNull')])
+  .nullable()
+  .transform((v) => transformJsonNull(v));
+
+export type NullableJsonValueType = z.infer<typeof NullableJsonValue>;
+
+export const InputJsonValueSchema: z.ZodType<Prisma.InputJsonValue> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.object({ toJSON: z.function(z.tuple([]), z.any()) }),
+    z.record(z.lazy(() => z.union([InputJsonValueSchema, z.literal(null)]))),
+    z.array(z.lazy(() => z.union([InputJsonValueSchema, z.literal(null)]))),
+  ])
+);
+
+export type InputJsonValueType = z.infer<typeof InputJsonValueSchema>;
 
 
 /////////////////////////////////////////
@@ -22,33 +66,47 @@ export const InviteScalarFieldEnumSchema = z.enum(['id','email','role','createdA
 
 export const MemberScalarFieldEnumSchema = z.enum(['id','role','specialty','organizationId','userId']);
 
-export const PatientScalarFieldEnumSchema = z.enum(['id','name','email','phone','birthDate','gender','cpf','rg','healthPlan','profession','responsibleName','responsiblePhone','createdAt','updatedAt','cep','street','number','complement','neighborhood','city','state','organizationId']);
+export const PatientScalarFieldEnumSchema = z.enum(['id','name','email','phone','birthDate','avatarUrl','gender','cpf','rg','healthPlan','profession','responsibleName','responsiblePhone','createdAt','updatedAt','cep','street','number','complement','neighborhood','city','state','organizationId']);
 
 export const MedicalRecordScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','patientId']);
 
 export const AnamnesisScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','medicalRecordId','templateId']);
 
-export const AnamnesisTemplateScalarFieldEnumSchema = z.enum(['id','title','description','createdAt','updatedAt','organizationId']);
+export const AnamnesisTemplateScalarFieldEnumSchema = z.enum(['id','title','description','createdAt','updatedAt','isActive','organizationId']);
 
-export const AnamnesisQuestionScalarFieldEnumSchema = z.enum(['id','question','type','templateId']);
+export const AnamnesisQuestionScalarFieldEnumSchema = z.enum(['id','question','type','isRequired','order','templateId']);
 
 export const PatientAnamnesisScalarFieldEnumSchema = z.enum(['id','createdAt','updatedAt','patientId','templateId']);
 
 export const AnamnesisAnswerScalarFieldEnumSchema = z.enum(['id','answer','questionId','patientAnamnesisId','anamnesisId']);
 
-export const AppointmentScalarFieldEnumSchema = z.enum(['id','startTime','endTime','description','status','createdAt','updatedAt','patientId','memberId']);
+export const AppointmentScalarFieldEnumSchema = z.enum(['id','type','startTime','endTime','description','status','createdAt','updatedAt','patientId','memberId','organizationId','createdById','userId']);
 
-export const OrganizationScalarFieldEnumSchema = z.enum(['id','name','slug','domain','shouldAttachUsersByDomain','avatarUrl','createdAt','updatedAt','ownerId']);
+export const OrganizationScalarFieldEnumSchema = z.enum(['id','name','slug','domain','shouldAttachUsersByDomain','avatarUrl','createdAt','updatedAt','cnpj','email','phone','website','description','address','addressNumber','addressComplement','neighborhood','city','state','zipCode','businessHours','specialties','acceptedInsurances','facebookUrl','instagramUrl','linkedinUrl','twitterUrl','ownerId']);
 
-export const FinancialTransactionScalarFieldEnumSchema = z.enum(['id','description','amount','type','paymentMethod','date','createdAt','updatedAt','organizationId','patientId']);
+export const FinancialTransactionScalarFieldEnumSchema = z.enum(['id','description','amount','type','paymentMethod','date','createdAt','updatedAt','organizationId','patientId','categoryId']);
 
-export const CustomerSatisfactionScalarFieldEnumSchema = z.enum(['id','rating','comment','createdAt','patientId','organizationId']);
+export const TransactionCategoryScalarFieldEnumSchema = z.enum(['id','name']);
+
+export const CustomerSatisfactionScalarFieldEnumSchema = z.enum(['id','rating','comment','createdAt','serviceQuality','staffProfessionalism','cleanliness','overallExperience','patientId','organizationId']);
+
+export const TreatmentScalarFieldEnumSchema = z.enum(['id','description','startDate','endDate','status','patientId','memberId']);
+
+export const PrescriptionScalarFieldEnumSchema = z.enum(['id','details','createdAt','patientId','memberId']);
+
+export const NotificationScalarFieldEnumSchema = z.enum(['id','message','type','isRead','createdAt','userId']);
+
+export const MessageScalarFieldEnumSchema = z.enum(['id','content','createdAt','senderId','receiverId']);
 
 export const SortOrderSchema = z.enum(['asc','desc']);
+
+export const NullableJsonNullValueInputSchema = z.enum(['DbNull','JsonNull',]).transform((value) => value === 'JsonNull' ? Prisma.JsonNull : value === 'DbNull' ? Prisma.DbNull : value);
 
 export const QueryModeSchema = z.enum(['default','insensitive']);
 
 export const NullsOrderSchema = z.enum(['first','last']);
+
+export const JsonNullValueFilterSchema = z.enum(['DbNull','JsonNull','AnyNull',]).transform((value) => value === 'JsonNull' ? Prisma.JsonNull : value === 'DbNull' ? Prisma.JsonNull : value === 'AnyNull' ? Prisma.AnyNull : value);
 
 export const TokenTypeSchema = z.enum(['PASSWORD_RECOVER']);
 
@@ -70,6 +128,10 @@ export const QuestionTypeSchema = z.enum(['TEXT','BOOLEAN','MULTIPLE_CHOICE','SI
 
 export type QuestionTypeType = `${z.infer<typeof QuestionTypeSchema>}`
 
+export const AppointmentTypeSchema = z.enum(['CONSULTATION','COMMITMENT']);
+
+export type AppointmentTypeType = `${z.infer<typeof AppointmentTypeSchema>}`
+
 export const AppointmentStatusSchema = z.enum(['SCHEDULED','CONFIRMED','CANCELLED','COMPLETED']);
 
 export type AppointmentStatusType = `${z.infer<typeof AppointmentStatusSchema>}`
@@ -81,6 +143,14 @@ export type TransactionTypeType = `${z.infer<typeof TransactionTypeSchema>}`
 export const PaymentMethodSchema = z.enum(['CASH','CREDIT_CARD','DEBIT_CARD','BANK_TRANSFER','PIX','OTHER']);
 
 export type PaymentMethodType = `${z.infer<typeof PaymentMethodSchema>}`
+
+export const TreatmentStatusSchema = z.enum(['ONGOING','COMPLETED','CANCELLED']);
+
+export type TreatmentStatusType = `${z.infer<typeof TreatmentStatusSchema>}`
+
+export const NotificationTypeSchema = z.enum(['APPOINTMENT_REMINDER','NEW_MESSAGE','SYSTEM_UPDATE']);
+
+export type NotificationTypeType = `${z.infer<typeof NotificationTypeSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -168,6 +238,7 @@ export const PatientSchema = z.object({
   email: z.string().nullable(),
   phone: z.string().nullable(),
   birthDate: z.coerce.date(),
+  avatarUrl: z.string().nullable(),
   cpf: z.string().nullable(),
   rg: z.string().nullable(),
   healthPlan: z.string().nullable(),
@@ -225,6 +296,7 @@ export const AnamnesisTemplateSchema = z.object({
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  isActive: z.boolean(),
   organizationId: z.string(),
 })
 
@@ -238,6 +310,8 @@ export const AnamnesisQuestionSchema = z.object({
   type: QuestionTypeSchema,
   id: z.string(),
   question: z.string(),
+  isRequired: z.boolean(),
+  order: z.number().int(),
   templateId: z.string(),
 })
 
@@ -276,6 +350,7 @@ export type AnamnesisAnswer = z.infer<typeof AnamnesisAnswerSchema>
 /////////////////////////////////////////
 
 export const AppointmentSchema = z.object({
+  type: AppointmentTypeSchema,
   status: AppointmentStatusSchema,
   id: z.string(),
   startTime: z.coerce.date(),
@@ -283,8 +358,11 @@ export const AppointmentSchema = z.object({
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
-  patientId: z.string(),
+  patientId: z.string().nullable(),
   memberId: z.string(),
+  organizationId: z.string(),
+  createdById: z.string(),
+  userId: z.string().nullable(),
 })
 
 export type Appointment = z.infer<typeof AppointmentSchema>
@@ -302,6 +380,25 @@ export const OrganizationSchema = z.object({
   avatarUrl: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  cnpj: z.string().nullable(),
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+  website: z.string().nullable(),
+  description: z.string().nullable(),
+  address: z.string().nullable(),
+  addressNumber: z.string().nullable(),
+  addressComplement: z.string().nullable(),
+  neighborhood: z.string().nullable(),
+  city: z.string().nullable(),
+  state: z.string().nullable(),
+  zipCode: z.string().nullable(),
+  businessHours: JsonValueSchema.nullable(),
+  specialties: z.string().array(),
+  acceptedInsurances: z.string().array(),
+  facebookUrl: z.string().nullable(),
+  instagramUrl: z.string().nullable(),
+  linkedinUrl: z.string().nullable(),
+  twitterUrl: z.string().nullable(),
   ownerId: z.string(),
 })
 
@@ -322,9 +419,21 @@ export const FinancialTransactionSchema = z.object({
   updatedAt: z.coerce.date(),
   organizationId: z.string(),
   patientId: z.string().nullable(),
+  categoryId: z.string(),
 })
 
 export type FinancialTransaction = z.infer<typeof FinancialTransactionSchema>
+
+/////////////////////////////////////////
+// TRANSACTION CATEGORY SCHEMA
+/////////////////////////////////////////
+
+export const TransactionCategorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+})
+
+export type TransactionCategory = z.infer<typeof TransactionCategorySchema>
 
 /////////////////////////////////////////
 // CUSTOMER SATISFACTION SCHEMA
@@ -335,8 +444,71 @@ export const CustomerSatisfactionSchema = z.object({
   rating: z.number().int(),
   comment: z.string().nullable(),
   createdAt: z.coerce.date(),
+  serviceQuality: z.number().int(),
+  staffProfessionalism: z.number().int(),
+  cleanliness: z.number().int(),
+  overallExperience: z.number().int(),
   patientId: z.string(),
   organizationId: z.string(),
 })
 
 export type CustomerSatisfaction = z.infer<typeof CustomerSatisfactionSchema>
+
+/////////////////////////////////////////
+// TREATMENT SCHEMA
+/////////////////////////////////////////
+
+export const TreatmentSchema = z.object({
+  status: TreatmentStatusSchema,
+  id: z.string(),
+  description: z.string(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date().nullable(),
+  patientId: z.string(),
+  memberId: z.string(),
+})
+
+export type Treatment = z.infer<typeof TreatmentSchema>
+
+/////////////////////////////////////////
+// PRESCRIPTION SCHEMA
+/////////////////////////////////////////
+
+export const PrescriptionSchema = z.object({
+  id: z.string(),
+  details: z.string(),
+  createdAt: z.coerce.date(),
+  patientId: z.string(),
+  memberId: z.string(),
+})
+
+export type Prescription = z.infer<typeof PrescriptionSchema>
+
+/////////////////////////////////////////
+// NOTIFICATION SCHEMA
+/////////////////////////////////////////
+
+export const NotificationSchema = z.object({
+  type: NotificationTypeSchema,
+  id: z.string(),
+  message: z.string(),
+  isRead: z.boolean(),
+  createdAt: z.coerce.date(),
+  userId: z.string(),
+})
+
+export type Notification = z.infer<typeof NotificationSchema>
+
+/////////////////////////////////////////
+// MESSAGE SCHEMA
+/////////////////////////////////////////
+
+export const MessageSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  createdAt: z.coerce.date(),
+  senderId: z.string(),
+  receiverId: z.string(),
+})
+
+export type Message = z.infer<typeof MessageSchema>

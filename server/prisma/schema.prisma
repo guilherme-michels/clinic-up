@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  seed     = "ts-node prisma/seed.ts"
 }
 
 datasource db {
@@ -26,11 +27,16 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  tokens             Token[]
-  accounts           Account[]
-  invites            Invite[]
-  member_on          Member[]
-  owns_organizations Organization[]
+  tokens               Token[]
+  accounts             Account[]
+  invites              Invite[]
+  member_on            Member[]
+  owns_organizations   Organization[]
+  appointments         Appointment[]
+  created_appointments Appointment[]  @relation("CreatedAppointments")
+  notifications        Notification[]
+  sent_messages        Message[]      @relation("SentMessages")
+  received_messages    Message[]      @relation("ReceivedMessages")
 
   @@map("users")
 }
@@ -102,6 +108,8 @@ model Member {
   userId String @map("user_id")
 
   appointments Appointment[]
+  Treatment    Treatment[]
+  Prescription Prescription[]
 
   @@unique([organizationId, userId])
   @@map("members")
@@ -113,6 +121,7 @@ model Patient {
   email            String?  @unique
   phone            String?
   birthDate        DateTime @map("birth_date")
+  avatarUrl        String?  @map("avatar_url")
   gender           Gender?
   cpf              String?  @unique
   rg               String?
@@ -123,7 +132,6 @@ model Patient {
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
-  // Campos de endereço
   cep          String?
   street       String?
   number       String?
@@ -141,6 +149,8 @@ model Patient {
   FinancialTransaction FinancialTransaction[]
   CustomerSatisfaction CustomerSatisfaction[]
   PatientAnamnesis     PatientAnamnesis[]
+  Treatment            Treatment[]
+  Prescription         Prescription[]
 
   @@map("patients")
 }
@@ -186,6 +196,7 @@ model AnamnesisTemplate {
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true)
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
@@ -198,9 +209,11 @@ model AnamnesisTemplate {
 }
 
 model AnamnesisQuestion {
-  id       String       @id @default(uuid())
-  question String
-  type     QuestionType
+  id         String       @id @default(uuid())
+  question   String
+  type       QuestionType
+  isRequired Boolean      @default(false)
+  order      Int
 
   template   AnamnesisTemplate @relation(fields: [templateId], references: [id])
   templateId String            @map("template_id")
@@ -250,8 +263,14 @@ enum QuestionType {
   DATE
 }
 
+enum AppointmentType {
+  CONSULTATION
+  COMMITMENT
+}
+
 model Appointment {
   id          String            @id @default(uuid())
+  type        AppointmentType
   startTime   DateTime          @map("start_time")
   endTime     DateTime          @map("end_time")
   description String?
@@ -259,11 +278,19 @@ model Appointment {
   createdAt   DateTime          @default(now()) @map("created_at")
   updatedAt   DateTime          @updatedAt @map("updated_at")
 
-  patient   Patient @relation(fields: [patientId], references: [id])
-  patientId String  @map("patient_id")
+  patient   Patient? @relation(fields: [patientId], references: [id])
+  patientId String?  @map("patient_id")
 
   member   Member @relation(fields: [memberId], references: [id])
   memberId String @map("member_id")
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
+
+  createdBy   User    @relation("CreatedAppointments", fields: [createdById], references: [id])
+  createdById String  @map("created_by_id")
+  User        User?   @relation(fields: [userId], references: [id])
+  userId      String?
 
   @@map("appointments")
 }
@@ -285,6 +312,29 @@ model Organization {
   createdAt                 DateTime @default(now()) @map("created_at")
   updatedAt                 DateTime @updatedAt @map("updated_at")
 
+  cnpj        String? @unique
+  email       String?
+  phone       String?
+  website     String?
+  description String?
+
+  address           String?
+  addressNumber     String?
+  addressComplement String?
+  neighborhood      String?
+  city              String?
+  state             String?
+  zipCode           String?
+
+  businessHours      Json?
+  specialties        String[]
+  acceptedInsurances String[]
+
+  facebookUrl  String?
+  instagramUrl String?
+  linkedinUrl  String?
+  twitterUrl   String?
+
   owner   User   @relation(fields: [ownerId], references: [id])
   ownerId String @map("user_id")
 
@@ -296,6 +346,7 @@ model Organization {
 
   customerSatisfactions CustomerSatisfaction[]
   AnamnesisTemplate     AnamnesisTemplate[]
+  appointments          Appointment[]
 
   @@map("organizations")
 }
@@ -316,6 +367,9 @@ model FinancialTransaction {
   patient   Patient? @relation(fields: [patientId], references: [id])
   patientId String?  @map("patient_id")
 
+  category   TransactionCategory @relation(fields: [categoryId], references: [id])
+  categoryId String              @map("category_id")
+
   @@map("financial_transactions")
 }
 
@@ -333,11 +387,24 @@ enum PaymentMethod {
   OTHER
 }
 
+model TransactionCategory {
+  id   String @id @default(uuid())
+  name String
+
+  transactions FinancialTransaction[]
+
+  @@map("transaction_categories")
+}
+
 model CustomerSatisfaction {
-  id        String   @id @default(uuid())
-  rating    Int      @db.SmallInt // Pontuação de 1 a 5, por exemplo
-  comment   String?
-  createdAt DateTime @default(now()) @map("created_at")
+  id                   String   @id @default(uuid())
+  rating               Int      @db.SmallInt
+  comment              String?
+  createdAt            DateTime @default(now()) @map("created_at")
+  serviceQuality       Int      @db.SmallInt
+  staffProfessionalism Int      @db.SmallInt
+  cleanliness          Int      @db.SmallInt
+  overallExperience    Int      @db.SmallInt
 
   patient   Patient @relation(fields: [patientId], references: [id])
   patientId String  @map("patient_id")
@@ -346,4 +413,73 @@ model CustomerSatisfaction {
   organizationId String       @map("organization_id")
 
   @@map("customer_satisfaction")
+}
+
+model Treatment {
+  id          String          @id @default(uuid())
+  description String
+  startDate   DateTime
+  endDate     DateTime?
+  status      TreatmentStatus
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId String  @map("patient_id")
+
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId String @map("member_id")
+
+  @@map("treatments")
+}
+
+enum TreatmentStatus {
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model Prescription {
+  id        String   @id @default(uuid())
+  details   String
+  createdAt DateTime @default(now())
+
+  patient   Patient @relation(fields: [patientId], references: [id])
+  patientId String  @map("patient_id")
+
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId String @map("member_id")
+
+  @@map("prescriptions")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  APPOINTMENT_REMINDER
+  NEW_MESSAGE
+  SYSTEM_UPDATE
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  sender   User   @relation("SentMessages", fields: [senderId], references: [id])
+  senderId String @map("sender_id")
+
+  receiver   User   @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiverId String @map("receiver_id")
+
+  @@map("messages")
 }
