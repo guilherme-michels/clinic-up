@@ -19,6 +19,9 @@ export function PatientTabs() {
 		if (currentPath.includes(`/pacientes/${id}/orcamentos`)) {
 			return "budget";
 		}
+		if (currentPath.includes(`/pacientes/${id}/anamnese`)) {
+			return "anamnese";
+		}
 		return "about";
 	};
 
@@ -27,6 +30,9 @@ export function PatientTabs() {
 			<TabsList>
 				<TabsTrigger value="about" asChild>
 					<Link to={`/pacientes/${id}`}>Sobre</Link>
+				</TabsTrigger>
+				<TabsTrigger value="anamnese" asChild>
+					<Link to={`/pacientes/${id}/anamnese`}>Anamnese</Link>
 				</TabsTrigger>
 				<TabsTrigger value="history" asChild>
 					<Link to={`/pacientes/${id}/historico`}>Histórico</Link>

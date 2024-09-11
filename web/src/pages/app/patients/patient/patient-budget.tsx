@@ -1,3 +1,9 @@
+import { Developing } from "@/components/developing";
+
 export function PatientBudget() {
-	return <div>a</div>;
+	return (
+		<div>
+			<Developing />
+		</div>
+	);
 }

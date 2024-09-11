@@ -6,6 +6,7 @@ import {
 } from "react-hook-form";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -34,20 +35,27 @@ export function FormDatePicker<T extends FieldValues>({
 			render={({ field, fieldState }) => (
 				<div className="relative flex justify-center flex-col w-full">
 					{label && (
-						<div className="text-xs px-1 mb-1 text-foreground">{label}</div>
+						<div className="text-xs px-1 mb-1 text-foreground">
+							{label}
+							{fieldState.error && (
+								<span className="text-sm text-red-500">
+									{fieldState.error.message}
+								</span>
+							)}
+						</div>
 					)}
 					<Popover>
 						<PopoverTrigger asChild>
 							<Button
 								variant={"outline"}
 								className={cn(
-									"w-full justify-start text-left font-normal border-zinc-300",
+									"w-full justify-start text-left font-normal border-zinc-300 h-10",
 									!field.value && "text-muted-foreground",
 								)}
 							>
 								<CalendarIcon className="mr-2 h-4 w-4" />
 								{field.value ? (
-									format(field.value, "PP")
+									format(field.value, "dd/MM/yyyy", { locale: ptBR })
 								) : (
 									<span>Selecione uma data</span>
 								)}
@@ -59,14 +67,10 @@ export function FormDatePicker<T extends FieldValues>({
 								selected={field.value}
 								onSelect={field.onChange}
 								initialFocus
+								locale={ptBR}
 							/>
 						</PopoverContent>
 					</Popover>
-					{fieldState.error && (
-						<span className="text-sm text-red-500">
-							{fieldState.error.message}
-						</span>
-					)}
 				</div>
 			)}
 		/>

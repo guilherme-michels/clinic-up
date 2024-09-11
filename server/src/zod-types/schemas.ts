@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
 	AppointmentStatusSchema,
+	AppointmentTypeSchema,
 	GenderSchema,
 	QuestionTypeSchema,
 	RoleSchema,
@@ -167,27 +168,57 @@ export type MemberFormSchema = z.infer<typeof memberSchema>;
 
 // Appointment
 export const appointmentSchema = z.object({
-	status: AppointmentStatusSchema,
 	id: z.string(),
-	startTime: z.coerce.date(),
-	endTime: z.coerce.date(),
-	description: z.string().nullable(),
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date(),
-	patientId: z.string(),
-	memberId: z.string(),
+	type: z.enum(["CONSULTATION", "COMMITMENT"]),
+	status: z.enum(["SCHEDULED", "CONFIRMED", "CANCELED", "COMPLETED"]),
+	description: z.string(),
+	consultationDate: z.date().nullable(),
+	consultationStartTime: z.string().nullable(),
+	consultationEndTime: z.string().nullable(),
+	commitmentStartDate: z.date().nullable(),
+	commitmentEndDate: z.date().nullable(),
+	patientId: z.string().nullable(),
+	memberId: z.string().nullable(),
+	userId: z.string().nullable(),
+	createdById: z.string(),
+	organizationId: z.string(),
+	createdAt: z.date(),
+	updatedAt: z.date(),
 });
 
-export const createAppointment = appointmentSchema.omit({
-	createdAt: true,
-	updatedAt: true,
-});
+export const createAppointment = appointmentSchema
+	.omit({
+		id: true,
+		createdAt: true,
+		updatedAt: true,
+		createdById: true,
+		organizationId: true,
+		commitmentStartDate: true,
+		commitmentEndDate: true,
+	})
+	.extend({
+		consultationDate: z.coerce.date().nullable(),
+		consultationStartTime: z.string().nullable(),
+		consultationEndTime: z.string().nullable(),
+		// status: z.enum(["SCHEDULED", "CONFIRMED", "CANCELLED", "COMPLETED"]),
+	});
 
 export const updateAppointment = appointmentSchema
 	.partial()
-	.omit({ createdAt: true, updatedAt: true });
+	.omit({
+		createdAt: true,
+		updatedAt: true,
+		createdById: true,
+		organizationId: true,
+	})
+	.extend({
+		id: z.string(),
+		consultationDate: z.coerce.date().nullable(),
+		consultationStartTime: z.string().nullable(),
+		consultationEndTime: z.string().nullable(),
+	});
 
-export type AppointmentFormSchema = z.infer<typeof appointmentSchema>;
+export type AppointmentFormSchema = z.infer<typeof createAppointment>;
 
 // PatientAnamnesis
 export const PatientAnamnesisSchema = z.object({

@@ -11,6 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "./ui/select";
+import { cn } from "@/lib/utils";
 
 interface FormSelectProps<T extends FieldValues> {
 	control: Control<T>;
@@ -38,7 +39,7 @@ export function FormSelect<T extends FieldValues>({
 						<div className="text-xs px-1 mb-1 text-foreground">
 							{label}
 							{error && (
-								<span className="text-red-600 text-xs mt-1 ml-2">
+								<span className="text-xs text-red-500 ml-2">
 									{error.message}
 								</span>
 							)}
@@ -49,7 +50,12 @@ export function FormSelect<T extends FieldValues>({
 						defaultValue={field.value}
 						value={field.value}
 					>
-						<SelectTrigger className="w-full border-zinc-300 text-sm">
+						<SelectTrigger
+							className={cn(
+								"w-full border-zinc-300 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+								error ? "border-red-600" : "border-zinc-300",
+							)}
+						>
 							<SelectValue placeholder={placeholder || "Selecione uma opção"} />
 						</SelectTrigger>
 						<SelectContent>
@@ -64,7 +70,6 @@ export function FormSelect<T extends FieldValues>({
 							))}
 						</SelectContent>
 					</Select>
-					{error && <p className="text-sm text-red-500">{error.message}</p>}
 				</div>
 			)}
 		/>

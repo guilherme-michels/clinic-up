@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  seed     = "ts-node prisma/seed.ts"
+  // seed     = "ts-node prisma/seed.ts"
 }
 
 datasource db {
@@ -271,12 +271,17 @@ enum AppointmentType {
 model Appointment {
   id          String            @id @default(uuid())
   type        AppointmentType
-  startTime   DateTime          @map("start_time")
-  endTime     DateTime          @map("end_time")
   description String?
   status      AppointmentStatus @default(SCHEDULED)
   createdAt   DateTime          @default(now()) @map("created_at")
   updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  consultationDate      DateTime? @map("consultation_date")
+  consultationStartTime DateTime? @map("consultation_start_time")
+  consultationEndTime   DateTime? @map("consultation_end_time")
+
+  commitmentStartDate DateTime? @map("commitment_start_date")
+  commitmentEndDate   DateTime? @map("commitment_end_date")
 
   patient   Patient? @relation(fields: [patientId], references: [id])
   patientId String?  @map("patient_id")

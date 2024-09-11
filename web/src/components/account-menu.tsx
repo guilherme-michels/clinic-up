@@ -1,4 +1,4 @@
-import { Building, ChevronDown, LogOut } from "lucide-react";
+import { Building, ChevronDown, LogOut, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "./ui/button";
@@ -61,14 +61,19 @@ export function AccountMenu() {
 						)}
 					</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DialogTrigger asChild>
+					<DropdownMenuItem asChild>
 						<Link to="minha-clinica">
-							<DropdownMenuItem>
-								<Building className="mr-2 h-4 w-4" />
-								Perfil da organização
-							</DropdownMenuItem>
+							<Building className="mr-2 h-4 w-4" />
+							Perfil da organização
 						</Link>
-					</DialogTrigger>
+					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link to="minha-conta">
+							<User className="mr-2 h-4 w-4" />
+							<span>Minha conta</span>
+						</Link>
+					</DropdownMenuItem>
+
 					<DropdownMenuItem
 						asChild
 						className="text-rose-500 dark:text-rose-400"

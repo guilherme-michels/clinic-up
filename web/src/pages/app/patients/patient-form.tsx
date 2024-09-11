@@ -48,7 +48,7 @@ export function PatientForm() {
 	const createMutation = trpc.patient.create.useMutation({
 		onSuccess: () => {
 			toast.success("Paciente criado com sucesso!");
-			navigate("/patients");
+			navigate("/pacientes");
 		},
 		onError: (error: unknown) => {
 			if (error instanceof Error) {
@@ -85,7 +85,9 @@ export function PatientForm() {
 		};
 
 		if (id) {
-			updateMutation.mutate({ ...formattedData, id });
+			updateMutation.mutate({ ...formattedData, id } as PatientFormSchema & {
+				id: string;
+			});
 		} else {
 			createMutation.mutate(formattedData);
 		}

@@ -1,22 +1,28 @@
-import { useState } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
-	type Appointment,
-	AppointmentSchema,
-} from "../../../../../../server/src/schemas/index";
+	type AppointmentFormSchema,
+	createAppointment,
+	updateAppointment,
+} from "../../../../../../server/src/zod-types/schemas";
+
+import { FormDatePicker } from "@/components/date-picker";
+import { FormInput } from "@/components/form-input";
+
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogClose,
 	DialogContent,
+	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { FormInput } from "@/components/form-input";
-import { AppointmentTabs } from "./appointment-tabs";
+
+import { format } from "date-fns";
+import { toast } from "sonner";
+import { trpc } from "@/App";
 
 interface AppointmentFormModalProps {
 	isOpened: boolean;
@@ -27,7 +33,7 @@ interface AppointmentFormModalProps {
 		slots: Date[];
 		action: "select" | "click" | "doubleClick";
 	};
-	appointment?: Appointment;
+	appointment?: AppointmentFormSchema & { id: string };
 }
 
 export function AppointmentFormModal({
@@ -36,22 +42,68 @@ export function AppointmentFormModal({
 	slotInfo,
 	appointment,
 }: AppointmentFormModalProps) {
-	const { setValue, control, reset } = useForm<Appointment>({
-		resolver: zodResolver(AppointmentSchema),
+	const utils = trpc.useContext();
+	const createMutation = trpc.appointment.create.useMutation({
+		onSuccess: () => {
+			toast.success("Consulta criada com sucesso!");
+			utils.appointment.invalidate();
+			onClose();
+		},
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		onError: (error: any) => {
+			toast.error(`Erro ao criar consulta: ${error.message}`);
+		},
 	});
 
-	const [appointmentType, setAppointmentType] = useState<
-		"appointment" | "scheduling"
-	>("appointment");
+	const updateMutation = trpc.appointment.update.useMutation({
+		onSuccess: () => {
+			toast.success("Consulta atualizada com sucesso!");
+			utils.appointment.invalidate();
+			onClose();
+		},
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		onError: (error: any) => {
+			toast.error(`Erro ao atualizar consulta: ${error.message}`);
+		},
+	});
 
-	const defaultSlotInfo = {
-		start: null,
-		end: null,
-		slots: [],
-		action: "select",
+	const {
+		control,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<AppointmentFormSchema>({
+		resolver: zodResolver(appointment ? updateAppointment : createAppointment),
+		defaultValues: appointment || {
+			type: "CONSULTATION",
+			status: "SCHEDULED",
+			description: "",
+			consultationDate: slotInfo?.start || new Date(),
+			consultationStartTime: slotInfo?.start
+				? format(slotInfo.start, "HH:mm")
+				: "",
+			consultationEndTime: slotInfo?.end ? format(slotInfo.end, "HH:mm") : "",
+			patientId: "",
+			memberId: "",
+			userId: "",
+		},
+	});
+
+	const onSubmit = (data: AppointmentFormSchema) => {
+		const formattedData = {
+			...data,
+			consultationDate: data.consultationDate
+				? new Date(data.consultationDate)
+				: null,
+			consultationStartTime: data.consultationStartTime || null,
+			consultationEndTime: data.consultationEndTime || null,
+		};
+
+		if (appointment) {
+			updateMutation.mutate({ id: appointment.id, ...formattedData });
+		} else {
+			createMutation.mutate(formattedData);
+		}
 	};
-
-	const info = slotInfo ?? defaultSlotInfo;
 
 	return (
 		<Dialog open={isOpened} onOpenChange={onClose}>
@@ -59,43 +111,65 @@ export function AppointmentFormModal({
 			<DialogContent className="max-w-4xl">
 				<DialogHeader>
 					<DialogTitle className="font-bold flex flex-col text-xl">
-						{appointment ? "Editar agendamento" : "Adicionar agendamento"}
+						{appointment ? "Editar consulta" : "Adicionar consulta"}
 					</DialogTitle>
+					<DialogDescription>
+						Preencha os detalhes da consulta abaixo.
+					</DialogDescription>
 				</DialogHeader>
-				<form className="flex flex-col gap-4">
-					<div className="flex gap-2">
-						<AppointmentTabs />
-					</div>
-
+				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
 					<FormInput
 						control={control}
 						name="description"
 						label="Descrição"
 						required
-						placeholder="Selecione o paciente"
 					/>
-
-					{/* <div className="items-top flex space-x-2 px-4 p-2">
-						<Checkbox id="terms1" />
-						<div className="grid gap-1.5 leading-none">
-							<label
-								htmlFor="terms1"
-								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-							>
-								Enviar confirmação e lembrete de consulta automático.
-							</label>
-							<p className="text-sm text-muted-foreground">
-								O paciente e o responsável receberão lembretes perto da data.
-							</p>
-						</div>
-					</div> */}
-
+					<FormDatePicker
+						control={control}
+						name="consultationDate"
+						label="Data da Consulta"
+						required
+					/>
+					<FormInput
+						control={control}
+						name="consultationStartTime"
+						label="Horário de Início"
+						type="time"
+						required
+					/>
+					<FormInput
+						control={control}
+						name="consultationEndTime"
+						label="Horário de Término"
+						type="time"
+						required
+					/>
+					<FormInput
+						control={control}
+						name="patientId"
+						label="ID do Paciente"
+						required
+					/>
+					<FormInput
+						control={control}
+						name="memberId"
+						label="ID do Membro"
+						required
+					/>
+					<FormInput
+						control={control}
+						name="userId"
+						label="ID do Usuário"
+						required
+					/>
 					<DialogFooter className="flex w-full justify-between items-center">
 						<div className="flex gap-2">
 							<Button onClick={onClose} type="button">
 								Cancelar
 							</Button>
-							<Button type="submit">Salvar</Button>
+							<Button type="submit" onClick={() => console.log(errors)}>
+								{appointment ? "Atualizar" : "Criar"}
+							</Button>
 						</div>
 					</DialogFooter>
 				</form>

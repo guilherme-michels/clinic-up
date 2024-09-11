@@ -80,7 +80,7 @@ export const PatientAnamnesisScalarFieldEnumSchema = z.enum(['id','createdAt','u
 
 export const AnamnesisAnswerScalarFieldEnumSchema = z.enum(['id','answer','questionId','patientAnamnesisId','anamnesisId']);
 
-export const AppointmentScalarFieldEnumSchema = z.enum(['id','type','startTime','endTime','description','status','createdAt','updatedAt','patientId','memberId','organizationId','createdById','userId']);
+export const AppointmentScalarFieldEnumSchema = z.enum(['id','type','description','status','createdAt','updatedAt','consultationDate','consultationStartTime','consultationEndTime','commitmentStartDate','commitmentEndDate','patientId','memberId','organizationId','createdById','userId']);
 
 export const OrganizationScalarFieldEnumSchema = z.enum(['id','name','slug','domain','shouldAttachUsersByDomain','avatarUrl','createdAt','updatedAt','cnpj','email','phone','website','description','address','addressNumber','addressComplement','neighborhood','city','state','zipCode','businessHours','specialties','acceptedInsurances','facebookUrl','instagramUrl','linkedinUrl','twitterUrl','ownerId']);
 
@@ -161,7 +161,7 @@ export type NotificationTypeType = `${z.infer<typeof NotificationTypeSchema>}`
 /////////////////////////////////////////
 
 export const UserSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   name: z.string().nullable(),
   email: z.string(),
   passwordHash: z.string().nullable(),
@@ -178,7 +178,7 @@ export type User = z.infer<typeof UserSchema>
 
 export const TokenSchema = z.object({
   type: TokenTypeSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   createdAt: z.coerce.date(),
   userId: z.string(),
 })
@@ -191,7 +191,7 @@ export type Token = z.infer<typeof TokenSchema>
 
 export const AccountSchema = z.object({
   provider: AccountProviderSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   providerAccountId: z.string(),
   userId: z.string(),
 })
@@ -204,7 +204,7 @@ export type Account = z.infer<typeof AccountSchema>
 
 export const InviteSchema = z.object({
   role: RoleSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   email: z.string(),
   createdAt: z.coerce.date(),
   authorId: z.string().nullable(),
@@ -219,7 +219,7 @@ export type Invite = z.infer<typeof InviteSchema>
 
 export const MemberSchema = z.object({
   role: RoleSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   specialty: z.string().nullable(),
   organizationId: z.string(),
   userId: z.string(),
@@ -233,7 +233,7 @@ export type Member = z.infer<typeof MemberSchema>
 
 export const PatientSchema = z.object({
   gender: GenderSchema.nullable(),
-  id: z.string(),
+  id: z.string().uuid(),
   name: z.string(),
   email: z.string().nullable(),
   phone: z.string().nullable(),
@@ -264,7 +264,7 @@ export type Patient = z.infer<typeof PatientSchema>
 /////////////////////////////////////////
 
 export const MedicalRecordSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   patientId: z.string(),
@@ -277,7 +277,7 @@ export type MedicalRecord = z.infer<typeof MedicalRecordSchema>
 /////////////////////////////////////////
 
 export const AnamnesisSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   medicalRecordId: z.string(),
@@ -291,7 +291,7 @@ export type Anamnesis = z.infer<typeof AnamnesisSchema>
 /////////////////////////////////////////
 
 export const AnamnesisTemplateSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   title: z.string(),
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
@@ -308,7 +308,7 @@ export type AnamnesisTemplate = z.infer<typeof AnamnesisTemplateSchema>
 
 export const AnamnesisQuestionSchema = z.object({
   type: QuestionTypeSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   question: z.string(),
   isRequired: z.boolean(),
   order: z.number().int(),
@@ -322,7 +322,7 @@ export type AnamnesisQuestion = z.infer<typeof AnamnesisQuestionSchema>
 /////////////////////////////////////////
 
 export const PatientAnamnesisSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   patientId: z.string(),
@@ -336,7 +336,7 @@ export type PatientAnamnesis = z.infer<typeof PatientAnamnesisSchema>
 /////////////////////////////////////////
 
 export const AnamnesisAnswerSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   answer: z.string(),
   questionId: z.string(),
   patientAnamnesisId: z.string(),
@@ -352,12 +352,15 @@ export type AnamnesisAnswer = z.infer<typeof AnamnesisAnswerSchema>
 export const AppointmentSchema = z.object({
   type: AppointmentTypeSchema,
   status: AppointmentStatusSchema,
-  id: z.string(),
-  startTime: z.coerce.date(),
-  endTime: z.coerce.date(),
+  id: z.string().uuid(),
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  consultationDate: z.coerce.date().nullable(),
+  consultationStartTime: z.coerce.date().nullable(),
+  consultationEndTime: z.coerce.date().nullable(),
+  commitmentStartDate: z.coerce.date().nullable(),
+  commitmentEndDate: z.coerce.date().nullable(),
   patientId: z.string().nullable(),
   memberId: z.string(),
   organizationId: z.string(),
@@ -372,7 +375,7 @@ export type Appointment = z.infer<typeof AppointmentSchema>
 /////////////////////////////////////////
 
 export const OrganizationSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   name: z.string(),
   slug: z.string(),
   domain: z.string().nullable(),
@@ -411,7 +414,7 @@ export type Organization = z.infer<typeof OrganizationSchema>
 export const FinancialTransactionSchema = z.object({
   type: TransactionTypeSchema,
   paymentMethod: PaymentMethodSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   description: z.string(),
   amount: z.string(),
   date: z.coerce.date(),
@@ -429,7 +432,7 @@ export type FinancialTransaction = z.infer<typeof FinancialTransactionSchema>
 /////////////////////////////////////////
 
 export const TransactionCategorySchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   name: z.string(),
 })
 
@@ -440,7 +443,7 @@ export type TransactionCategory = z.infer<typeof TransactionCategorySchema>
 /////////////////////////////////////////
 
 export const CustomerSatisfactionSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   rating: z.number().int(),
   comment: z.string().nullable(),
   createdAt: z.coerce.date(),
@@ -460,7 +463,7 @@ export type CustomerSatisfaction = z.infer<typeof CustomerSatisfactionSchema>
 
 export const TreatmentSchema = z.object({
   status: TreatmentStatusSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   description: z.string(),
   startDate: z.coerce.date(),
   endDate: z.coerce.date().nullable(),
@@ -475,7 +478,7 @@ export type Treatment = z.infer<typeof TreatmentSchema>
 /////////////////////////////////////////
 
 export const PrescriptionSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   details: z.string(),
   createdAt: z.coerce.date(),
   patientId: z.string(),
@@ -490,7 +493,7 @@ export type Prescription = z.infer<typeof PrescriptionSchema>
 
 export const NotificationSchema = z.object({
   type: NotificationTypeSchema,
-  id: z.string(),
+  id: z.string().uuid(),
   message: z.string(),
   isRead: z.boolean(),
   createdAt: z.coerce.date(),
@@ -504,7 +507,7 @@ export type Notification = z.infer<typeof NotificationSchema>
 /////////////////////////////////////////
 
 export const MessageSchema = z.object({
-  id: z.string(),
+  id: z.string().uuid(),
   content: z.string(),
   createdAt: z.coerce.date(),
   senderId: z.string(),

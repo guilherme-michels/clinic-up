@@ -98,11 +98,22 @@ const organizationRouter = router({
 			return prisma.organization.findUnique({ where: { id: input } });
 		}),
 
-	update: publicProcedure
+	update: protectedProcedure
 		.input(updateOrganization)
-		.mutation(async ({ input }) => {
-			const { id, ...data } = input;
-			return prisma.organization.update({ where: { id }, data });
+		.mutation(async ({ input, ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+
+			if (!organizationId) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Organização não encontrada para o usuário atual.",
+				});
+			}
+
+			return prisma.organization.update({
+				where: { id: organizationId },
+				data: input,
+			});
 		}),
 
 	delete: publicProcedure
@@ -237,91 +248,75 @@ const appointmentRouter = router({
 		.input(createAppointment)
 		.mutation(async ({ input, ctx }) => {
 			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const member = await prisma.member.findFirst({
-				where: { userId: ctx.user.id, organizationId },
-			});
-			if (!member) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Usuário não é membro da organização",
-				});
-			}
+			
+			const consultationDate = new Date(input.consultationDate);
+			const [startHours, startMinutes] = input.consultationStartTime.split(':');
+			const [endHours, endMinutes] = input.consultationEndTime.split(':');
+			
+			const startDateTime = new Date(consultationDate);
+			startDateTime.setHours(parseInt(startHours), parseInt(startMinutes));
+			
+			const endDateTime = new Date(consultationDate);
+			endDateTime.setHours(parseInt(endHours), parseInt(endMinutes));
+
 			return prisma.appointment.create({
-				data: { ...input, memberId: member.id, patientId: input.patientId },
+				data: {
+					type: input.type,
+					description: input.description,
+					consultationDate: input.consultationDate,
+					consultationStartTime: startDateTime.toISOString(),
+					consultationEndTime: endDateTime.toISOString(),
+					patient: {
+						connect: { id: input.patientId }
+					},
+					member: {
+						connect: { id: input.memberId }
+					},
+					organization: {
+						connect: { id: organizationId }
+					},
+					createdBy: {
+						connect: { id: ctx.user.id }
+					}
+				},
 			});
 		}),
 
 	getAll: protectedProcedure.query(async ({ ctx }) => {
 		const organizationId = await getCurrentUserOrganizationId(ctx);
-		const member = await prisma.member.findFirst({
-			where: { userId: ctx.user.id, organizationId },
-		});
-		if (!member) {
-			throw new TRPCError({
-				code: "FORBIDDEN",
-				message: "Usuário não é membro da organização",
-			});
-		}
 		return prisma.appointment.findMany({
-			where: { memberId: member.id },
+			where: { organizationId },
 			include: { patient: true },
 		});
 	}),
 
 	getById: protectedProcedure
-		.input(AppointmentSchema.shape.id)
+		.input(z.string())
 		.query(async ({ input, ctx }) => {
 			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const member = await prisma.member.findFirst({
-				where: { userId: ctx.user.id, organizationId },
-			});
-			if (!member) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Usuário não é membro da organização",
-				});
-			}
 			return prisma.appointment.findFirst({
-				where: { id: input, memberId: member.id },
+				where: { id: input, organizationId },
 				include: { patient: true },
 			});
 		}),
 
 	update: protectedProcedure
-		.input(updateAppointment)
+		.input(z.object({ id: z.string(), ...updateAppointment.shape }))
 		.mutation(async ({ input, ctx }) => {
 			const { id, ...data } = input;
 			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const member = await prisma.member.findFirst({
-				where: { userId: ctx.user.id, organizationId },
-			});
-			if (!member) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Usuário não é membro da organização",
-				});
-			}
 			return prisma.appointment.update({
-				where: { id, memberId: member.id },
+				where: { id, organizationId },
 				data,
 			});
 		}),
 
 	delete: protectedProcedure
-		.input(AppointmentSchema.shape.id)
+		.input(z.string())
 		.mutation(async ({ input, ctx }) => {
 			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const member = await prisma.member.findFirst({
-				where: { userId: ctx.user.id, organizationId },
-			});
-			if (!member) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Usuário não é membro da organização",
-				});
-			}
 			return prisma.appointment.delete({
-				where: { id: input, memberId: member.id },
+				where: { id: input, organizationId },
 			});
 		}),
 });

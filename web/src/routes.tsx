@@ -29,6 +29,8 @@ import { Financial } from "./pages/app/financial/financial";
 import { AnamneseList } from "./pages/app/clinic/anamnese/anamnese-list";
 import { LoaderCircle } from "lucide-react";
 import { Specialties } from "./pages/app/clinic/specialties/specialties";
+import { PatientAnamnese } from "./pages/app/patients/patient/patient-anamnese";
+import { MyAccount } from "./pages/app/account/my-account";
 
 const ProtectedRoute = () => {
 	const { isAuthenticated, checkAuth } = useAuth();
@@ -112,6 +114,10 @@ export const router = createBrowserRouter([
 								element: <PatientHistory />,
 							},
 							{
+								path: "anamnese",
+								element: <PatientAnamnese />,
+							},
+							{
 								path: "imagens",
 								element: <PatientImages />,
 							},
@@ -164,6 +170,10 @@ export const router = createBrowserRouter([
 								element: <Specialties />,
 							},
 						],
+					},
+					{
+						path: "/minha-conta",
+						element: <MyAccount />,
 					},
 					{
 						path: "*",
