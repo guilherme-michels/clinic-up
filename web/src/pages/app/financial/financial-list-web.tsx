@@ -11,8 +11,13 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, MoreHorizontal, SlidersHorizontal } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+	ArrowDownLeft,
+	ArrowUpRight,
+	ChevronDown,
+	MoreHorizontal,
+	SlidersHorizontal,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -33,61 +38,77 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { MemberIncludeSchema } from "../../../../../server/src/schemas";
 import { trpc } from "@/App";
-import type { z } from "zod";
-import { RoleBadge } from "@/components/role-badge";
+import type {
+	FinancialTransaction,
+	PaymentMethodType,
+} from "../../../../../server/src/schemas";
+import { PaymentMethodBadge } from "@/components/payment-methods-badge";
 
-type MemberWithIncludes = z.infer<typeof MemberIncludeSchema>;
+interface FinancialListWebProps {
+	onAddClick: () => void;
+}
 
-export const columns: ColumnDef<MemberWithIncludes>[] = [
+export const columns: ColumnDef<FinancialTransaction>[] = [
 	{
-		id: "avatar",
-		cell: ({ row }) => (
-			<div className="w-full items-center justify-center flex">
-				<Avatar className="size-8">
-					<AvatarImage
-						src={row.original.user.avatarUrl || undefined}
-						alt={row.original.user.name || ""}
-					/>
-					<AvatarFallback>{row.original.user.name?.charAt(0)}</AvatarFallback>
-				</Avatar>
-			</div>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
-	{
-		id: "name",
-		accessorKey: "user.name",
-		header: "Nome",
-		cell: ({ row }) => (
-			<div className="flex flex-col">
-				<span className="font-medium">{row.original.user.name}</span>
-				<span className="text-sm text-muted-foreground">
-					{row.original.user.email}
-				</span>
-			</div>
-		),
-	},
-	{
-		accessorKey: "role",
-		header: "Função",
-		cell: ({ row }) => <RoleBadge role={row.original.role} />,
-	},
-	{
-		accessorKey: "createdAt",
-		header: "Data de Cadastro",
+		accessorKey: "date",
+		header: "Data",
 		cell: ({ row }) => {
-			const date = new Date(row.original.user.createdAt);
+			const date = new Date(row.getValue("date"));
 			return <div>{date.toLocaleDateString()}</div>;
+		},
+	},
+	{
+		accessorKey: "description",
+		header: "Descrição",
+	},
+	{
+		accessorKey: "amount",
+		header: "Valor",
+		cell: ({ row }) => {
+			const amount = Number.parseFloat(row.getValue("amount"));
+			const formatted = new Intl.NumberFormat("pt-BR", {
+				style: "currency",
+				currency: "BRL",
+			}).format(amount);
+			return <div>{formatted}</div>;
+		},
+	},
+	{
+		accessorKey: "type",
+		header: "Tipo",
+		cell: ({ row }) => {
+			const type = row.getValue("type") as "INCOME" | "EXPENSE";
+			return (
+				<div>
+					{type === "INCOME" ? (
+						<div className="flex items-center text-green-600">
+							<ArrowUpRight />
+							Entrada
+						</div>
+					) : (
+						<div className="flex items-center text-red-500">
+							<ArrowDownLeft />
+							Saída
+						</div>
+					)}
+				</div>
+			);
+		},
+	},
+	{
+		accessorKey: "paymentMethod",
+		header: "Método de Pagamento",
+		cell: ({ row }) => {
+			const method = row.getValue("paymentMethod") as PaymentMethodType;
+			return <PaymentMethodBadge method={method} />;
 		},
 	},
 	{
 		id: "actions",
 		enableHiding: false,
 		cell: ({ row }) => {
-			const member = row.original;
+			const transaction = row.original;
 
 			return (
 				<DropdownMenu>
@@ -97,7 +118,10 @@ export const columns: ColumnDef<MemberWithIncludes>[] = [
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Ações</DropdownMenuLabel>
 						<DropdownMenuItem asChild>
-							<Link to={`/equipe/cadastro/${member.id}`}>Editar</Link>
+							<Link to={`/financeiro/editar/${transaction.id}`}>Editar</Link>
+						</DropdownMenuItem>
+						<DropdownMenuItem asChild>
+							<Link to={`/financeiro/${transaction.id}`}>Ver</Link>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -106,7 +130,7 @@ export const columns: ColumnDef<MemberWithIncludes>[] = [
 	},
 ];
 
-export function FinancialListWeb() {
+export function FinancialListWeb({ onAddClick }: FinancialListWebProps) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
@@ -115,10 +139,11 @@ export function FinancialListWeb() {
 		React.useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = React.useState({});
 
-	const { data: members, isLoading } = trpc.member.getAll.useQuery();
+	const { data: transactions, isLoading } =
+		trpc.financialTransaction.getAll.useQuery();
 
 	const table = useReactTable({
-		data: members || [],
+		data: transactions || [],
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -140,10 +165,12 @@ export function FinancialListWeb() {
 		<div className="w-full">
 			<div className="flex items-center py-4">
 				<Input
-					placeholder="Filtrar por nome..."
-					value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+					placeholder="Filtrar por descrição..."
+					value={
+						(table.getColumn("description")?.getFilterValue() as string) ?? ""
+					}
 					onChange={(event) =>
-						table.getColumn("name")?.setFilterValue(event.target.value)
+						table.getColumn("description")?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>
@@ -174,6 +201,9 @@ export function FinancialListWeb() {
 							})}
 					</DropdownMenuContent>
 				</DropdownMenu>
+				<Button className="ml-4" onClick={onAddClick}>
+					Adicionar
+				</Button>
 			</div>
 			<div className="rounded-md border">
 				<Table>
@@ -182,15 +212,7 @@ export function FinancialListWeb() {
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
 									return (
-										<TableHead
-											key={header.id}
-											className={
-												header.column.id === "avatar" ||
-												header.column.id === "actions"
-													? "w-12 max-w-12"
-													: ""
-											}
-										>
+										<TableHead key={header.id}>
 											{header.isPlaceholder
 												? null
 												: flexRender(
@@ -211,15 +233,7 @@ export function FinancialListWeb() {
 									data-state={row.getIsSelected() && "selected"}
 								>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell
-											key={cell.id}
-											className={
-												cell.column.id === "avatar" ||
-												cell.column.id === "actions"
-													? "w-16 max-w-16"
-													: ""
-											}
-										>
+										<TableCell key={cell.id}>
 											{flexRender(
 												cell.column.columnDef.cell,
 												cell.getContext(),
@@ -234,7 +248,7 @@ export function FinancialListWeb() {
 									colSpan={columns.length}
 									className="h-24 text-center"
 								>
-									Nenhum resultado encontrado.
+									Nenhuma transação encontrada.
 								</TableCell>
 							</TableRow>
 						)}

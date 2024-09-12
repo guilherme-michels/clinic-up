@@ -38,7 +38,7 @@ export function FormDatePicker<T extends FieldValues>({
 						<div className="text-xs px-1 mb-1 text-foreground">
 							{label}
 							{fieldState.error && (
-								<span className="text-sm text-red-500">
+								<span className="text-xs text-red-500 ml-2">
 									{fieldState.error.message}
 								</span>
 							)}
@@ -51,6 +51,7 @@ export function FormDatePicker<T extends FieldValues>({
 								className={cn(
 									"w-full justify-start text-left font-normal border-zinc-300 h-10",
 									!field.value && "text-muted-foreground",
+									fieldState.error ? "border-red-600" : "border-zinc-300",
 								)}
 							>
 								<CalendarIcon className="mr-2 h-4 w-4" />

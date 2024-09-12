@@ -261,6 +261,7 @@ CREATE TABLE "financial_transactions" (
 CREATE TABLE "transaction_categories" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
 
     CONSTRAINT "transaction_categories_pkey" PRIMARY KEY ("id")
 );
@@ -441,6 +442,9 @@ ALTER TABLE "financial_transactions" ADD CONSTRAINT "financial_transactions_pati
 
 -- AddForeignKey
 ALTER TABLE "financial_transactions" ADD CONSTRAINT "financial_transactions_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "transaction_categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transaction_categories" ADD CONSTRAINT "transaction_categories_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "customer_satisfaction" ADD CONSTRAINT "customer_satisfaction_patient_id_fkey" FOREIGN KEY ("patient_id") REFERENCES "patients"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

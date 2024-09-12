@@ -86,7 +86,7 @@ export const OrganizationScalarFieldEnumSchema = z.enum(['id','name','slug','dom
 
 export const FinancialTransactionScalarFieldEnumSchema = z.enum(['id','description','amount','type','paymentMethod','date','createdAt','updatedAt','organizationId','patientId','categoryId']);
 
-export const TransactionCategoryScalarFieldEnumSchema = z.enum(['id','name']);
+export const TransactionCategoryScalarFieldEnumSchema = z.enum(['id','name','organizationId']);
 
 export const CustomerSatisfactionScalarFieldEnumSchema = z.enum(['id','rating','comment','createdAt','serviceQuality','staffProfessionalism','cleanliness','overallExperience','patientId','organizationId']);
 
@@ -434,6 +434,7 @@ export type FinancialTransaction = z.infer<typeof FinancialTransactionSchema>
 export const TransactionCategorySchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
+  organizationId: z.string(),
 })
 
 export type TransactionCategory = z.infer<typeof TransactionCategorySchema>

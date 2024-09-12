@@ -1,20 +1,16 @@
 import { Helmet } from "react-helmet-async";
-
 import { Outlet, useLocation } from "react-router-dom";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { useState } from "react";
 import { DatePickerWithRange } from "@/components/date-range-picker";
 import { FinancialTabs } from "./financial-tabs";
 import { FinancialListWeb } from "./financial-list-web";
+import { FinancialFormModal } from "./financial-form-modal";
 
 export function Financial() {
 	const location = useLocation();
 	const isFinancialList = location.pathname === "/financeiro";
+	const [isFinancialFormModalOpen, setIsFinancialFormModalOpen] =
+		useState(false);
 
 	return (
 		<>
@@ -32,7 +28,20 @@ export function Financial() {
 					</div>
 				</div>
 
-				{isFinancialList ? <FinancialListWeb /> : <Outlet />}
+				{isFinancialList ? (
+					<FinancialListWeb
+						onAddClick={() => setIsFinancialFormModalOpen(true)}
+					/>
+				) : (
+					<Outlet />
+				)}
+
+				{isFinancialFormModalOpen && (
+					<FinancialFormModal
+						isOpened={isFinancialFormModalOpen}
+						onClose={() => setIsFinancialFormModalOpen(false)}
+					/>
+				)}
 			</div>
 		</>
 	);

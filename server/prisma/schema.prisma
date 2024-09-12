@@ -352,6 +352,7 @@ model Organization {
   customerSatisfactions CustomerSatisfaction[]
   AnamnesisTemplate     AnamnesisTemplate[]
   appointments          Appointment[]
+  TransactionCategory   TransactionCategory[]
 
   @@map("organizations")
 }
@@ -393,10 +394,11 @@ enum PaymentMethod {
 }
 
 model TransactionCategory {
-  id   String @id @default(uuid())
-  name String
-
-  transactions FinancialTransaction[]
+  id             String                 @id @default(uuid())
+  name           String
+  organizationId String
+  organization   Organization           @relation(fields: [organizationId], references: [id])
+  transactions   FinancialTransaction[]
 
   @@map("transaction_categories")
 }

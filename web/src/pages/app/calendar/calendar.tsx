@@ -41,7 +41,7 @@ export function Calendar() {
 	const [selectedSlotInfo, setSelectedSlotInfo] = useState<SlotInfo | null>(
 		null,
 	);
-	const [view, setView] = useState<View>("month");
+	const [view, setView] = useState<View>("day");
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const [selectedAppointment, setSelectedAppointment] = useState<any | null>(
 		null,
@@ -181,6 +181,7 @@ export function Calendar() {
 						event: (props) => (
 							<div className="p-1 font-semibold">{props.title}</div>
 						),
+
 						header: (props) => (
 							<div className="w-full flex flex-col cursor-default">
 								<span className="text-sm font-normal text-zinc-600">

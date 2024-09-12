@@ -1,10 +1,10 @@
 import { z } from "zod";
 import {
-	AppointmentStatusSchema,
-	AppointmentTypeSchema,
 	GenderSchema,
+	PaymentMethodSchema,
 	QuestionTypeSchema,
 	RoleSchema,
+	TransactionTypeSchema,
 } from "../schemas";
 
 // AnamneseTemplate
@@ -240,3 +240,52 @@ export const updatePatientAnamnesis = PatientAnamnesisSchema.partial().omit({
 });
 
 export type PatientAnamnesisFormSchema = z.infer<typeof PatientAnamnesisSchema>;
+
+// FinancialTransaction
+export const FinancialTransactionSchema = z.object({
+	id: z.string().uuid(),
+	type: TransactionTypeSchema,
+	paymentMethod: PaymentMethodSchema,
+	description: z.string(),
+	amount: z.string(),
+	date: z.coerce.date(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+	organizationId: z.string(),
+	patientId: z.string().nullable(),
+	categoryId: z.string(),
+});
+
+export const createFinancialTransaction = FinancialTransactionSchema.omit({
+	id: true,
+	organizationId: true,
+	createdAt: true,
+	updatedAt: true,
+});
+
+export const updateFinancialTransaction =
+	FinancialTransactionSchema.partial().omit({
+		createdAt: true,
+		updatedAt: true,
+	});
+
+export type FinancialTransactionFormSchema = z.infer<
+	typeof FinancialTransactionSchema
+>;
+
+// TransactionCategory
+export const TransactionCategorySchema = z.object({
+	id: z.string().uuid(),
+	name: z.string(),
+});
+
+export const createTransactionCategory = TransactionCategorySchema.omit({
+	id: true,
+});
+
+export const updateTransactionCategory =
+	TransactionCategorySchema.partial().omit({});
+
+export type TransactionCategoryFormSchema = z.infer<
+	typeof TransactionCategorySchema
+>;

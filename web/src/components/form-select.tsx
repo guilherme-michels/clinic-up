@@ -20,6 +20,7 @@ interface FormSelectProps<T extends FieldValues> {
 	options: { value: string; name: string }[];
 	placeholder?: string;
 	required?: boolean;
+	disabled?: boolean;
 }
 
 export function FormSelect<T extends FieldValues>({
@@ -28,7 +29,10 @@ export function FormSelect<T extends FieldValues>({
 	label,
 	options,
 	placeholder,
+	disabled,
 }: FormSelectProps<T>) {
+	const hasOptions = options.length > 0;
+
 	return (
 		<Controller
 			control={control}
@@ -49,6 +53,7 @@ export function FormSelect<T extends FieldValues>({
 						onValueChange={field.onChange}
 						defaultValue={field.value}
 						value={field.value}
+						disabled={disabled || !hasOptions}
 					>
 						<SelectTrigger
 							className={cn(
@@ -59,15 +64,21 @@ export function FormSelect<T extends FieldValues>({
 							<SelectValue placeholder={placeholder || "Selecione uma opção"} />
 						</SelectTrigger>
 						<SelectContent>
-							{options.map((option) => (
-								<SelectItem
-									key={option.value}
-									value={option.value}
-									className="text-sm"
-								>
-									{option.name}
-								</SelectItem>
-							))}
+							{hasOptions ? (
+								options.map((option) => (
+									<SelectItem
+										key={option.value}
+										value={option.value}
+										className="text-sm"
+									>
+										{option.name}
+									</SelectItem>
+								))
+							) : (
+								<div className="text-sm text-gray-400 p-2">
+									Nenhuma opção disponível
+								</div>
+							)}
 						</SelectContent>
 					</Select>
 				</div>

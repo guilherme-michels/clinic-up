@@ -1,5 +1,6 @@
 import * as React from "react";
 import { addDays, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
@@ -20,6 +21,10 @@ export function DatePickerWithRange({
 		to: addDays(new Date(2022, 0, 20), 20),
 	});
 
+	const formatDate = (date: Date) => {
+		return format(date, "dd 'de' MMM", { locale: ptBR });
+	};
+
 	return (
 		<div className={cn("grid gap-2", className)}>
 			<Popover>
@@ -28,7 +33,7 @@ export function DatePickerWithRange({
 						id="date"
 						variant={"outline"}
 						className={cn(
-							"w-[300px] justify-start text-left font-normal",
+							"w-fit justify-start text-left font-normal h-10",
 							!date && "text-muted-foreground",
 						)}
 					>
@@ -36,14 +41,13 @@ export function DatePickerWithRange({
 						{date?.from ? (
 							date.to ? (
 								<>
-									{format(date.from, "LLL dd, y")} -{" "}
-									{format(date.to, "LLL dd, y")}
+									{formatDate(date.from)} - {formatDate(date.to)}
 								</>
 							) : (
-								format(date.from, "LLL dd, y")
+								formatDate(date.from)
 							)
 						) : (
-							<span>Pick a date</span>
+							<span>Selecione um período</span>
 						)}
 					</Button>
 				</PopoverTrigger>
@@ -55,6 +59,14 @@ export function DatePickerWithRange({
 						selected={date}
 						onSelect={setDate}
 						numberOfMonths={2}
+						locale={ptBR}
+						weekStartsOn={0}
+						formatters={{
+							formatWeekdayName: (day) =>
+								format(day, "EEEEE", { locale: ptBR }).toUpperCase(),
+							formatCaption: (date) =>
+								format(date, "MMMM yyyy", { locale: ptBR }),
+						}}
 					/>
 				</PopoverContent>
 			</Popover>

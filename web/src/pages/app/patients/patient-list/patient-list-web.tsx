@@ -41,31 +41,29 @@ export const columns: ColumnDef<Patient>[] = [
 		id: "avatar",
 		cell: ({ row }) => (
 			<div className="w-full items-center justify-center flex">
-				{/* <Avatar className="size-8">
+				<Avatar className="size-8">
 					<AvatarImage
 						src={row.original.avatarUrl || undefined}
 						alt={row.original.name || ""}
 					/>
 					<AvatarFallback>{row.original.name?.charAt(0)}</AvatarFallback>
-				</Avatar> */}
+				</Avatar>
 			</div>
 		),
 		enableSorting: false,
 		enableHiding: false,
 	},
 	{
+		id: "name",
 		accessorKey: "name",
 		header: "Paciente",
 		cell: ({ row }) => (
-			<Link
-				to={`${row.original.id}`}
-				className="flex flex-col hover:cursor-pointer hover:text-zinc-600"
-			>
+			<div className="flex flex-col">
 				<span className="font-medium">{row.original.name}</span>
 				<span className="text-sm text-muted-foreground">
-					{row.original.email}
+					{row.original.email ? row.original.email : "Sem email"}
 				</span>
-			</Link>
+			</div>
 		),
 	},
 	{

@@ -65,7 +65,7 @@ export const columns: ColumnDef<MemberWithIncludes>[] = [
 			<div className="flex flex-col">
 				<span className="font-medium">{row.original.user.name}</span>
 				<span className="text-sm text-muted-foreground">
-					{row.original.user.email}
+					{row.original.user.email ? row.original.user.email : "Sem email"}
 				</span>
 			</div>
 		),
@@ -174,6 +174,10 @@ export function TeamListWeb() {
 							})}
 					</DropdownMenuContent>
 				</DropdownMenu>
+
+				<Link to="cadastro">
+					<Button className="ml-4">Adicionar</Button>
+				</Link>
 			</div>
 			<div className="rounded-md border">
 				<Table>
