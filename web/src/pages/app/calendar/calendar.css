@@ -2,6 +2,10 @@
   display: none;
 }
 
+.rbc-time-slot {
+ heigth: 30px
+}
+
 .rbc-day-slot .rbc-time-slot {
   border-top: 1px solid #e0e0e0;
 }
@@ -13,6 +17,16 @@
 .dark-theme span {
   color: #fff
 }
+
+.dark-theme .rbc-time-content {
+  border-top: 2px solid #666363;
+}
+
+
+.dark-theme .rbc-time-view {
+  border: 1px solid #666363;
+}
+
 
 .dark-theme .rbc-active{
   color: #1a1a1a;

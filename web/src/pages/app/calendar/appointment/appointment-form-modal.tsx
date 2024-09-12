@@ -82,9 +82,9 @@ export function AppointmentFormModal({
 				? format(slotInfo.start, "HH:mm")
 				: "",
 			consultationEndTime: slotInfo?.end ? format(slotInfo.end, "HH:mm") : "",
-			patientId: "",
-			memberId: "",
-			userId: "",
+			patientId: "b57ba013-a783-418c-8a24-9ffe88db01f5",
+			memberId: "0442ade8-8aa7-4a89-a61d-8e99b0d8085a",
+			userId: "0442ade8-8aa7-4a89-a61d-8e99b0d8085a",
 		},
 	});
 
@@ -135,6 +135,7 @@ export function AppointmentFormModal({
 						name="consultationStartTime"
 						label="Horário de Início"
 						type="time"
+						mask="time"
 						required
 					/>
 					<FormInput
@@ -142,6 +143,7 @@ export function AppointmentFormModal({
 						name="consultationEndTime"
 						label="Horário de Término"
 						type="time"
+						mask="time"
 						required
 					/>
 					<FormInput

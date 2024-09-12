@@ -14,54 +14,69 @@ import { useTheme } from "@/components/theme/theme-provider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, ArrowRight, CalendarCheck2 } from "lucide-react";
 import { CalendarHeaderCard } from "./cards/calendar-header-card";
+import { trpc } from "@/App";
 
 const localizer = dayjsLocalizer(dayjs);
 
-const eventos = [
-	{
-		title: "Consulta com Dr. Silva",
-		start: new Date(2023, 3, 15, 10, 0),
-		end: new Date(2023, 3, 15, 11, 0),
-	},
-];
-
 const mensagens = {
-	allDay: "Dia inteiro",
+	today: "Hoje",
 	previous: "Anterior",
 	next: "Próximo",
-	today: "Hoje",
 	month: "Mês",
 	week: "Semana",
 	day: "Dia",
 	agenda: "Agenda",
-	date: "Data",
-	time: "Hora",
-	event: "Evento",
-	noEventsInRange: "Não há eventos no período.",
 };
 
-const defaultDate = new Date();
+type SlotInfo = {
+	start: Date;
+	end: Date;
+	slots: Date[];
+	action: "select" | "click" | "doubleClick";
+};
 
 export function Calendar() {
 	const [isEventFormModalVisible, setIsEventFormModalVisible] = useState(false);
 	const { theme } = useTheme();
-	const [selectedSlotInfo, setSelectedSlotInfo] = useState(null);
+	const [selectedSlotInfo, setSelectedSlotInfo] = useState<SlotInfo | null>(
+		null,
+	);
 	const [view, setView] = useState<View>("month");
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const [selectedAppointment, setSelectedAppointment] = useState<any | null>(
 		null,
 	);
 
+	const { data: appointments, isLoading } = trpc.appointment.getAll.useQuery();
+
+	const events =
+		appointments?.map((appointment) => ({
+			id: appointment.id,
+			title: appointment.description,
+			start: new Date(appointment.consultationStartTime ?? Date.now()),
+			end: new Date(appointment.consultationEndTime ?? Date.now()),
+			resource: appointment,
+		})) || [];
+
+	if (isLoading) {
+		return <div>Carregando...</div>;
+	}
+
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const handleSelectSlot = (slotInfo: any) => {
 		setSelectedAppointment(null);
 		setSelectedSlotInfo(slotInfo);
 		setIsEventFormModalVisible(true);
-		console.log("Slot selecionado:", slotInfo);
 	};
 
 	const handleViewChange = (newView: string) => {
 		setView(newView as View);
+	};
+
+	const handleCloseModal = () => {
+		setIsEventFormModalVisible(false);
+		setSelectedSlotInfo(null);
+		setSelectedAppointment(null);
 	};
 
 	return (
@@ -91,17 +106,17 @@ export function Calendar() {
 				<BigCalendar
 					className={theme === "dark" ? "dark-theme" : ""}
 					localizer={localizer}
-					events={eventos}
+					events={events}
 					startAccessor="start"
 					endAccessor="end"
 					style={{ height: 800 }}
-					step={15}
-					defaultDate={defaultDate}
+					step={10}
+					defaultDate={new Date()}
 					min={
 						new Date(
-							defaultDate.getFullYear(),
-							defaultDate.getMonth(),
-							defaultDate.getDate(),
+							new Date().getFullYear(),
+							new Date().getMonth(),
+							new Date().getDate(),
 							7,
 							0,
 							0,
@@ -109,9 +124,9 @@ export function Calendar() {
 					}
 					max={
 						new Date(
-							defaultDate.getFullYear(),
-							defaultDate.getMonth(),
-							defaultDate.getDate(),
+							new Date().getFullYear(),
+							new Date().getMonth(),
+							new Date().getDate(),
 							22,
 							0,
 							0,
@@ -180,12 +195,13 @@ export function Calendar() {
 						),
 					}}
 					onSelectEvent={(event) => {
-						setSelectedSlotInfo(null);
-						setSelectedAppointment(event);
-						setIsEventFormModalVisible(true);
-						console.log("Evento selecionado:", event);
+						if (!isEventFormModalVisible) {
+							setSelectedSlotInfo(null);
+							setSelectedAppointment(event.resource);
+							setIsEventFormModalVisible(true);
+						}
 					}}
-					selectable={true}
+					selectable={!isEventFormModalVisible}
 					onSelectSlot={handleSelectSlot}
 					culture="pt-BR"
 					view={view}
@@ -193,12 +209,14 @@ export function Calendar() {
 				/>
 			</div>
 
-			<AppointmentFormModal
-				isOpened={isEventFormModalVisible}
-				slotInfo={selectedSlotInfo || undefined}
-				appointment={selectedAppointment}
-				onClose={() => setIsEventFormModalVisible(false)}
-			/>
+			{isEventFormModalVisible && (
+				<AppointmentFormModal
+					isOpened={isEventFormModalVisible}
+					appointment={selectedAppointment}
+					slotInfo={selectedSlotInfo || undefined}
+					onClose={handleCloseModal}
+				/>
+			)}
 		</>
 	);
 }
