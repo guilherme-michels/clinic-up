@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { createFinancialTransaction } from "../../../../../server/src/zod-types/schemas";
-import type { z } from "zod";
+import {
+	createFinancialTransaction,
+	type FinancialTransactionFormSchema,
+} from "../../../../../server/src/zod-types/schemas";
 import { useState } from "react";
 
 import { FormDatePicker } from "@/components/date-picker";
@@ -58,7 +60,7 @@ export function FinancialFormModal({
 		handleSubmit,
 		formState: { errors },
 		setValue,
-	} = useForm<z.infer<typeof createFinancialTransaction>>({
+	} = useForm<FinancialTransactionFormSchema>({
 		resolver: zodResolver(createFinancialTransaction),
 		defaultValues: {
 			paymentMethod: "CREDIT_CARD",
@@ -73,7 +75,7 @@ export function FinancialFormModal({
 		name: "type",
 	});
 
-	const onSubmit = (data: z.infer<typeof createFinancialTransaction>) => {
+	const onSubmit = (data: FinancialTransactionFormSchema) => {
 		if (!isPatientEnabled) {
 			data.patientId = null;
 		}
