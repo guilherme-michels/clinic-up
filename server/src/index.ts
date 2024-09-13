@@ -39,6 +39,10 @@ import {
 	createTransactionCategory,
 	updateTransactionCategory,
 } from "./zod-types/schemas";
+import { organizationRouter } from "./routes/organization.routes";
+import { appointmentRouter } from "./routes/appointment.routes";
+import { transactionCategoryRouter } from "./routes/transaction-category.routes";
+import { memberRouter } from "./routes/member.routes";
 
 // Criando schemas para signIn e signUp
 const SignUpSchema = z.object({
@@ -53,7 +57,7 @@ const SignInSchema = z.object({
 	password: z.string(),
 });
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 dotenv.config();
 
 // Rotas para User
@@ -84,118 +88,7 @@ const userRouter = router({
 		}),
 });
 
-// Rotas para Organization
-const organizationRouter = router({
-	create: publicProcedure
-		.input(createOrganization)
-		.mutation(async ({ input }) => {
-			return prisma.organization.create({ data: input });
-		}),
-
-	getAll: publicProcedure.query(async () => {
-		return prisma.organization.findMany();
-	}),
-
-	getById: publicProcedure
-		.input(OrganizationSchema.shape.id)
-		.query(async ({ input }) => {
-			return prisma.organization.findUnique({ where: { id: input } });
-		}),
-
-	update: protectedProcedure
-		.input(updateOrganization)
-		.mutation(async ({ input, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-
-			if (!organizationId) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Organização não encontrada para o usuário atual.",
-				});
-			}
-
-			return prisma.organization.update({
-				where: { id: organizationId },
-				data: input,
-			});
-		}),
-
-	delete: publicProcedure
-		.input(OrganizationSchema.shape.id)
-		.mutation(async ({ input }) => {
-			return prisma.organization.delete({ where: { id: input } });
-		}),
-
-	getCurrentUserOrganization: protectedProcedure.query(async ({ ctx }) => {
-		const member = await prisma.member.findFirst({
-			where: { userId: ctx.user.id },
-			include: { organization: true },
-		});
-
-		if (!member) {
-			throw new TRPCError({
-				code: "NOT_FOUND",
-				message: "Organização não encontrada para o usuário atual.",
-			});
-		}
-
-		return member.organization;
-	}),
-});
-
 // Rotas para Member
-const memberRouter = router({
-	create: publicProcedure.input(createMember).mutation(async ({ input }) => {
-		return prisma.member.create({ data: input });
-	}),
-
-	getAll: protectedProcedure.query(async ({ ctx }) => {
-		const organizationId = await getCurrentUserOrganizationId(ctx);
-		return prisma.member.findMany({
-			where: { organizationId },
-			include: {
-				user: true,
-				organization: true,
-			},
-		});
-	}),
-
-	getById: publicProcedure
-		.input(MemberSchema.shape.id)
-		.query(async ({ input }) => {
-			return prisma.member.findUnique({
-				where: { id: input },
-				include: {
-					user: true,
-					organization: true,
-				},
-			});
-		}),
-
-	update: publicProcedure.input(updateMember).mutation(async ({ input }) => {
-		const { id, ...data } = input;
-		return prisma.member.update({
-			where: { id },
-			data,
-			include: {
-				user: true,
-				organization: true,
-			},
-		});
-	}),
-
-	delete: publicProcedure
-		.input(MemberSchema.shape.id)
-		.mutation(async ({ input }) => {
-			return prisma.member.delete({
-				where: { id: input },
-				include: {
-					user: true,
-					organization: true,
-				},
-			});
-		}),
-});
 
 // Rotas para Patient
 const patientRouter = router({
@@ -301,162 +194,6 @@ const patientRouter = router({
 			patientsWithDebts,
 		};
 	}),
-});
-
-// Rotas para Appointment
-const appointmentRouter = router({
-	create: protectedProcedure
-		.input(createAppointment)
-		.mutation(async ({ input, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-
-			const consultationDate = new Date(input.consultationDate);
-			const [startHours, startMinutes] = input.consultationStartTime.split(":");
-			const [endHours, endMinutes] = input.consultationEndTime.split(":");
-
-			const startDateTime = new Date(consultationDate);
-			startDateTime.setHours(
-				Number.parseInt(startHours),
-				Number.parseInt(startMinutes),
-			);
-
-			const endDateTime = new Date(consultationDate);
-			endDateTime.setHours(
-				Number.parseInt(endHours),
-				Number.parseInt(endMinutes),
-			);
-
-			return prisma.appointment.create({
-				data: {
-					type: input.type,
-					description: input.description,
-					consultationDate: input.consultationDate,
-					consultationStartTime: startDateTime.toISOString(),
-					consultationEndTime: endDateTime.toISOString(),
-					patient: {
-						connect: { id: input.patientId },
-					},
-					member: {
-						connect: { id: input.memberId },
-					},
-					organization: {
-						connect: { id: organizationId },
-					},
-					createdBy: {
-						connect: { id: ctx.user.id },
-					},
-				},
-			});
-		}),
-
-	getAll: protectedProcedure.query(async ({ ctx }) => {
-		const organizationId = await getCurrentUserOrganizationId(ctx);
-		return prisma.appointment.findMany({
-			where: { organizationId },
-			include: { patient: true },
-		});
-	}),
-
-	getById: protectedProcedure
-		.input(z.string())
-		.query(async ({ input, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			return prisma.appointment.findFirst({
-				where: { id: input, organizationId },
-				include: { patient: true },
-			});
-		}),
-
-	update: protectedProcedure
-		.input(z.object({ id: z.string(), ...updateAppointment.shape }))
-		.mutation(async ({ input, ctx }) => {
-			const { id, ...data } = input;
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			return prisma.appointment.update({
-				where: { id, organizationId },
-				data,
-			});
-		}),
-
-	delete: protectedProcedure
-		.input(z.string())
-		.mutation(async ({ input, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			return prisma.appointment.delete({
-				where: { id: input, organizationId },
-			});
-		}),
-
-	// Dentro do appointmentRouter, adicione a seguinte rota:
-
-	getCompletedAppointmentsLast6Months: protectedProcedure.query(
-		async ({ ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const endDate = new Date();
-			const startDate = new Date(endDate);
-			startDate.setMonth(startDate.getMonth() - 5);
-
-			const appointments = await prisma.appointment.groupBy({
-				by: ["consultationDate"],
-				where: {
-					organizationId,
-					status: "COMPLETED",
-					consultationDate: {
-						gte: startDate,
-						lte: endDate,
-					},
-				},
-				_count: {
-					id: true,
-				},
-			});
-
-			const monthNames = [
-				"Janeiro",
-				"Fevereiro",
-				"Março",
-				"Abril",
-				"Maio",
-				"Junho",
-				"Julho",
-				"Agosto",
-				"Setembro",
-				"Outubro",
-				"Novembro",
-				"Dezembro",
-			];
-
-			const result = new Array(6)
-				.fill(null)
-				.map((_, index) => {
-					const date = new Date(endDate);
-					date.setMonth(date.getMonth() - index);
-					const month = date.getMonth();
-					const year = date.getFullYear();
-
-					const appointmentsInMonth = appointments.filter((a) => {
-						const appointmentDate = new Date(a.consultationDate);
-						return (
-							appointmentDate.getMonth() === month &&
-							appointmentDate.getFullYear() === year
-						);
-					});
-
-					const count = appointmentsInMonth.reduce(
-						(sum, a) => sum + a._count.id,
-						0,
-					);
-
-					return {
-						month: monthNames[month],
-						appointments: count,
-					};
-				})
-				.reverse();
-
-			return result;
-		},
-	),
 });
 
 // Rotas para AnamnesisTemplate
@@ -897,93 +634,6 @@ const financialTransactionRouter = router({
 
 		return { balance };
 	}),
-});
-
-const transactionCategoryRouter = router({
-	create: protectedProcedure
-		.input(createTransactionCategory)
-		.mutation(async ({ input, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			return ctx.prisma.transactionCategory.create({
-				data: {
-					...input,
-					organization: { connect: { id: organizationId } },
-				},
-			});
-		}),
-
-	getAll: protectedProcedure.query(async ({ ctx }) => {
-		const organizationId = await getCurrentUserOrganizationId(ctx);
-		return ctx.prisma.transactionCategory.findMany({
-			where: {
-				organizationId: organizationId,
-			},
-		});
-	}),
-
-	getById: protectedProcedure
-		.input(z.string().uuid())
-		.query(async ({ input: id, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const category = await ctx.prisma.transactionCategory.findFirst({
-				where: { id, organizationId },
-			});
-
-			if (!category) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Categoria não encontrada",
-				});
-			}
-
-			return category;
-		}),
-
-	update: protectedProcedure
-		.input(
-			z.object({
-				id: z.string().uuid(),
-				data: updateTransactionCategory,
-			}),
-		)
-		.mutation(async ({ input, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const { id, data } = input;
-
-			const category = await ctx.prisma.transactionCategory.findFirst({
-				where: { id, organizationId },
-			});
-
-			if (!category) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Categoria não encontrada",
-				});
-			}
-
-			return ctx.prisma.transactionCategory.update({
-				where: { id },
-				data,
-			});
-		}),
-
-	delete: protectedProcedure
-		.input(z.string().uuid())
-		.mutation(async ({ input: id, ctx }) => {
-			const organizationId = await getCurrentUserOrganizationId(ctx);
-			const category = await ctx.prisma.transactionCategory.findFirst({
-				where: { id, organizationId },
-			});
-
-			if (!category) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Categoria não encontrada",
-				});
-			}
-
-			return ctx.prisma.transactionCategory.delete({ where: { id } });
-		}),
 });
 
 const appRouter = router({
