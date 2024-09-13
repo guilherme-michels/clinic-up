@@ -21,7 +21,7 @@ export function Header() {
 					</div>
 				</div>
 				<div className="items-center gap-2 flex">
-					<NotificationToggle />
+					{/* <NotificationToggle /> */}
 					<ThemeToggle />
 					<AccountMenu />
 				</div>

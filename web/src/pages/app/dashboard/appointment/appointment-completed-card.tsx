@@ -1,11 +1,9 @@
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -15,17 +13,9 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
+import { trpc } from "@/App";
 
-export const description = "A multiple bar chart";
-
-const chartData = [
-	{ month: "January", appointments: 186 },
-	{ month: "February", appointments: 305 },
-	{ month: "March", appointments: 237 },
-	{ month: "April", appointments: 73 },
-	{ month: "May", appointments: 209 },
-	{ month: "June", appointments: 214 },
-];
+export const description = "Gráfico de barras de atendimentos realizados";
 
 const chartConfig = {
 	appointments: {
@@ -35,11 +25,22 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function AppointmentCompletedCard() {
+	const { data: chartData, isLoading } =
+		trpc.appointment.getCompletedAppointmentsLast6Months.useQuery();
+
+	if (isLoading) {
+		return <div>Carregando...</div>;
+	}
+
+	if (!chartData) {
+		return <div>Nenhum dado disponível</div>;
+	}
+
 	return (
 		<Card className="max-h-[400px]">
 			<CardHeader>
 				<CardTitle>Atendimentos realizados</CardTitle>
-				<CardDescription>Abril 2024 - Setembro 2024</CardDescription>
+				<CardDescription>Últimos 6 meses</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<ChartContainer config={chartConfig} className="h-[200px] w-full">

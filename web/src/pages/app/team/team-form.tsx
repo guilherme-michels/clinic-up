@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,9 +53,11 @@ export function TeamForm() {
 			</div>
 
 			<div className="flex justify-end space-x-2">
-				<Button type="button" variant="outline">
-					Cancelar
-				</Button>
+				<Link to="/equipe">
+					<Button type="button" variant="outline" asChild>
+						Cancelar
+					</Button>
+				</Link>
 				<Button type="submit">
 					{id ? "Atualizar Paciente" : "Adicionar membro"}
 				</Button>

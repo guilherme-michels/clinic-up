@@ -24,17 +24,22 @@ import {
 import { toast } from "sonner";
 import { trpc } from "@/App";
 import { Switch } from "@/components/ui/switch";
+import type { FinancialTransaction } from "../../../../../server/src/schemas";
 
 interface FinancialFormModalProps {
 	isOpened: boolean;
 	onClose: () => void;
+	transaction?: FinancialTransaction;
 }
 
 export function FinancialFormModal({
 	isOpened,
 	onClose,
+	transaction,
 }: FinancialFormModalProps) {
-	const [isPatientEnabled, setIsPatientEnabled] = useState(false);
+	const [isPatientEnabled, setIsPatientEnabled] = useState(
+		!!transaction?.patientId,
+	);
 
 	const utils = trpc.useContext();
 	const createMutation = trpc.financialTransaction.create.useMutation({
@@ -46,6 +51,18 @@ export function FinancialFormModal({
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		onError: (error: any) => {
 			toast.error(`Erro ao criar transação financeira: ${error.message}`);
+		},
+	});
+
+	const updateMutation = trpc.financialTransaction.update.useMutation({
+		onSuccess: () => {
+			toast.success("Transação financeira atualizada com sucesso!");
+			utils.financialTransaction.invalidate();
+			onClose();
+		},
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		onError: (error: any) => {
+			toast.error(`Erro ao atualizar transação financeira: ${error.message}`);
 		},
 	});
 
@@ -62,12 +79,17 @@ export function FinancialFormModal({
 		setValue,
 	} = useForm<FinancialTransactionFormSchema>({
 		resolver: zodResolver(createFinancialTransaction),
-		defaultValues: {
-			paymentMethod: "CREDIT_CARD",
-			type: "INCOME",
-			date: new Date(),
-			patientId: "",
-		},
+		defaultValues: transaction
+			? {
+					...transaction,
+					date: new Date(transaction.date),
+				}
+			: {
+					paymentMethod: "CREDIT_CARD",
+					type: "INCOME",
+					date: new Date(),
+					patientId: "",
+				},
 	});
 
 	const transactionType = useWatch({
@@ -79,7 +101,11 @@ export function FinancialFormModal({
 		if (!isPatientEnabled) {
 			data.patientId = null;
 		}
-		createMutation.mutate(data);
+		if (transaction) {
+			updateMutation.mutate({ ...data, id: transaction.id });
+		} else {
+			createMutation.mutate(data);
+		}
 	};
 
 	const handlePatientSwitch = (checked: boolean) => {
@@ -95,10 +121,13 @@ export function FinancialFormModal({
 			<DialogContent className="max-w-4xl">
 				<DialogHeader>
 					<DialogTitle className="font-bold flex flex-col text-xl">
-						Adicionar Transação Financeira
+						{transaction ? "Editar" : "Adicionar"} Transação Financeira
 					</DialogTitle>
 					<DialogDescription>
 						Preencha os detalhes da transação financeira abaixo.
+					</DialogDescription>
+					<DialogDescription>
+						{transaction ? "Edite" : "Adicione"} a transação financeira.
 					</DialogDescription>
 				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -194,7 +223,9 @@ export function FinancialFormModal({
 							<Button onClick={onClose} type="button">
 								Cancelar
 							</Button>
-							<Button type="submit">Criar</Button>
+							<Button type="submit">
+								{transaction ? "Atualizar" : "Criar"}
+							</Button>
 						</div>
 					</DialogFooter>
 				</form>

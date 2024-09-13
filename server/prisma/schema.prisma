@@ -358,14 +358,15 @@ model Organization {
 }
 
 model FinancialTransaction {
-  id            String          @id @default(uuid())
+  id            String            @id @default(uuid())
   description   String
   amount        String
   type          TransactionType
   paymentMethod PaymentMethod
   date          DateTime
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  status        TransactionStatus @default(PENDING)
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String       @map("organization_id")
@@ -382,6 +383,12 @@ model FinancialTransaction {
 enum TransactionType {
   INCOME
   EXPENSE
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
 
 enum PaymentMethod {

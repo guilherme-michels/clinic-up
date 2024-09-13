@@ -84,7 +84,7 @@ export const AppointmentScalarFieldEnumSchema = z.enum(['id','type','description
 
 export const OrganizationScalarFieldEnumSchema = z.enum(['id','name','slug','domain','shouldAttachUsersByDomain','avatarUrl','createdAt','updatedAt','cnpj','email','phone','website','description','address','addressNumber','addressComplement','neighborhood','city','state','zipCode','businessHours','specialties','acceptedInsurances','facebookUrl','instagramUrl','linkedinUrl','twitterUrl','ownerId']);
 
-export const FinancialTransactionScalarFieldEnumSchema = z.enum(['id','description','amount','type','paymentMethod','date','createdAt','updatedAt','organizationId','patientId','categoryId']);
+export const FinancialTransactionScalarFieldEnumSchema = z.enum(['id','description','amount','type','paymentMethod','date','createdAt','updatedAt','status','organizationId','patientId','categoryId']);
 
 export const TransactionCategoryScalarFieldEnumSchema = z.enum(['id','name','organizationId']);
 
@@ -139,6 +139,10 @@ export type AppointmentStatusType = `${z.infer<typeof AppointmentStatusSchema>}`
 export const TransactionTypeSchema = z.enum(['INCOME','EXPENSE']);
 
 export type TransactionTypeType = `${z.infer<typeof TransactionTypeSchema>}`
+
+export const TransactionStatusSchema = z.enum(['PENDING','COMPLETED','CANCELLED']);
+
+export type TransactionStatusType = `${z.infer<typeof TransactionStatusSchema>}`
 
 export const PaymentMethodSchema = z.enum(['CASH','CREDIT_CARD','DEBIT_CARD','BANK_TRANSFER','PIX','OTHER']);
 
@@ -414,6 +418,7 @@ export type Organization = z.infer<typeof OrganizationSchema>
 export const FinancialTransactionSchema = z.object({
   type: TransactionTypeSchema,
   paymentMethod: PaymentMethodSchema,
+  status: TransactionStatusSchema,
   id: z.string().uuid(),
   description: z.string(),
   amount: z.string(),

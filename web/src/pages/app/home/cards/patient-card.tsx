@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
 	Users,
 	Cake,
@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HomeCardSkeleton } from "./home-card-skeleton";
 import { Button } from "@/components/ui/button";
+import { trpc } from "@/App";
 
 interface PatientStats {
 	totalPatients: number;
@@ -55,17 +56,7 @@ const StatItem: React.FC<StatItemProps> = ({ icon, label, value, onClick }) => (
 );
 
 export function PatientCard() {
-	const [isLoading, setIsLoading] = useState(true);
-	const [stats, setStats] = useState<PatientStats | null>(null);
-
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setStats(patientStats);
-			setIsLoading(false);
-		}, 1000);
-
-		return () => clearTimeout(timer);
-	}, []);
+	const { data: stats, isLoading } = trpc.patient.getMetrics.useQuery();
 
 	const handleStatClick = (statName: string) => {
 		console.log(`Clicou em ${statName}`);
@@ -100,13 +91,13 @@ export function PatientCard() {
 						<StatItem
 							icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
 							label="Atendidos (últimos 6 meses)"
-							value={stats.patientsLastSixMonths}
+							value={stats.recentlyAttended}
 							onClick={() => handleStatClick("Atendidos (últimos 6 meses)")}
 						/>
 						<StatItem
 							icon={<AlertCircle className="h-4 w-4 text-muted-foreground" />}
 							label="Pacientes com Débitos"
-							value={stats.patientsWithOverdueDebts}
+							value={stats.patientsWithDebts}
 							onClick={() => handleStatClick("Pacientes com Débitos")}
 						/>
 					</>

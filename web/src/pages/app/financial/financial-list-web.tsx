@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useMemo } from "react";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -19,6 +20,7 @@ import {
 	SlidersHorizontal,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { FinancialFormModal } from "./financial-form-modal";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -49,88 +51,10 @@ interface FinancialListWebProps {
 	onAddClick: () => void;
 }
 
-export const columns: ColumnDef<FinancialTransaction>[] = [
-	{
-		accessorKey: "date",
-		header: "Data",
-		cell: ({ row }) => {
-			const date = new Date(row.getValue("date"));
-			return <div>{date.toLocaleDateString()}</div>;
-		},
-	},
-	{
-		accessorKey: "description",
-		header: "Descrição",
-	},
-	{
-		accessorKey: "amount",
-		header: "Valor",
-		cell: ({ row }) => {
-			const amount = Number.parseFloat(row.getValue("amount"));
-			const formatted = new Intl.NumberFormat("pt-BR", {
-				style: "currency",
-				currency: "BRL",
-			}).format(amount);
-			return <div>{formatted}</div>;
-		},
-	},
-	{
-		accessorKey: "type",
-		header: "Tipo",
-		cell: ({ row }) => {
-			const type = row.getValue("type") as "INCOME" | "EXPENSE";
-			return (
-				<div>
-					{type === "INCOME" ? (
-						<div className="flex items-center text-green-600">
-							<ArrowUpRight />
-							Entrada
-						</div>
-					) : (
-						<div className="flex items-center text-red-500">
-							<ArrowDownLeft />
-							Saída
-						</div>
-					)}
-				</div>
-			);
-		},
-	},
-	{
-		accessorKey: "paymentMethod",
-		header: "Método de Pagamento",
-		cell: ({ row }) => {
-			const method = row.getValue("paymentMethod") as PaymentMethodType;
-			return <PaymentMethodBadge method={method} />;
-		},
-	},
-	{
-		id: "actions",
-		enableHiding: false,
-		cell: ({ row }) => {
-			const transaction = row.original;
-
-			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<MoreHorizontal className="h-4 w-4 cursor-pointer hover:opacity-50 transition-all" />
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Ações</DropdownMenuLabel>
-						<DropdownMenuItem asChild>
-							<Link to={`/financeiro/editar/${transaction.id}`}>Editar</Link>
-						</DropdownMenuItem>
-						<DropdownMenuItem asChild>
-							<Link to={`/financeiro/${transaction.id}`}>Ver</Link>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			);
-		},
-	},
-];
-
 export function FinancialListWeb({ onAddClick }: FinancialListWebProps) {
+	const [editingTransaction, setEditingTransaction] =
+		useState<FinancialTransaction | null>(null);
+
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
 		[],
@@ -141,6 +65,93 @@ export function FinancialListWeb({ onAddClick }: FinancialListWebProps) {
 
 	const { data: transactions, isLoading } =
 		trpc.financialTransaction.getAll.useQuery();
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const columns = useMemo<ColumnDef<FinancialTransaction>[]>(
+		() => [
+			{
+				accessorKey: "date",
+				header: "Data",
+				cell: ({ row }) => {
+					const date = new Date(row.getValue("date"));
+					return <div>{date.toLocaleDateString()}</div>;
+				},
+			},
+			{
+				accessorKey: "description",
+				header: "Descrição",
+			},
+			{
+				accessorKey: "amount",
+				header: "Valor",
+				cell: ({ row }) => {
+					const amount = Number.parseFloat(row.getValue("amount"));
+					const formatted = new Intl.NumberFormat("pt-BR", {
+						style: "currency",
+						currency: "BRL",
+					}).format(amount);
+					return <div>{formatted}</div>;
+				},
+			},
+			{
+				accessorKey: "type",
+				header: "Tipo",
+				cell: ({ row }) => {
+					const type = row.getValue("type") as "INCOME" | "EXPENSE";
+					return (
+						<div>
+							{type === "INCOME" ? (
+								<div className="flex items-center text-green-600">
+									<ArrowUpRight />
+									Entrada
+								</div>
+							) : (
+								<div className="flex items-center text-red-500">
+									<ArrowDownLeft />
+									Saída
+								</div>
+							)}
+						</div>
+					);
+				},
+			},
+			{
+				accessorKey: "paymentMethod",
+				header: "Método de Pagamento",
+				cell: ({ row }) => {
+					const method = row.getValue("paymentMethod") as PaymentMethodType;
+					return <PaymentMethodBadge method={method} />;
+				},
+			},
+			{
+				id: "actions",
+				enableHiding: false,
+				cell: ({ row }) => {
+					const transaction = row.original;
+
+					return (
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<MoreHorizontal className="h-4 w-4 cursor-pointer hover:opacity-50 transition-all" />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuLabel>Ações</DropdownMenuLabel>
+								<DropdownMenuItem
+									onClick={() => setEditingTransaction(transaction)}
+								>
+									Editar
+								</DropdownMenuItem>
+								<DropdownMenuItem asChild>
+									<Link to={`/financeiro/${transaction.id}`}>Ver</Link>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					);
+				},
+			},
+		],
+		[setEditingTransaction],
+	);
 
 	const table = useReactTable({
 		data: transactions || [],
@@ -275,6 +286,13 @@ export function FinancialListWeb({ onAddClick }: FinancialListWebProps) {
 					</Button>
 				</div>
 			</div>
+			{editingTransaction && (
+				<FinancialFormModal
+					isOpened={!!editingTransaction}
+					onClose={() => setEditingTransaction(null)}
+					transaction={editingTransaction}
+				/>
+			)}
 		</div>
 	);
 }

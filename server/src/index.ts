@@ -244,6 +244,63 @@ const patientRouter = router({
 			const organizationId = await getCurrentUserOrganizationId(ctx);
 			return prisma.patient.delete({ where: { id: input, organizationId } });
 		}),
+
+	getMetrics: protectedProcedure.query(async ({ ctx }) => {
+		const organizationId = await getCurrentUserOrganizationId(ctx);
+		const currentDate = new Date();
+		const currentMonth = currentDate.getMonth() + 1; // Mês atual (1-12)
+		const sixMonthsAgo = new Date(currentDate);
+		sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+		const [totalPatients, allPatients, recentlyAttended, patientsWithDebts] =
+			await Promise.all([
+				prisma.patient.count({ where: { organizationId } }),
+
+				prisma.patient.findMany({
+					where: { organizationId },
+					select: { birthDate: true },
+				}),
+
+				prisma.appointment
+					.findMany({
+						where: {
+							organizationId,
+							consultationDate: { gte: sixMonthsAgo },
+							status: "COMPLETED",
+						},
+						select: { patientId: true },
+						distinct: ["patientId"],
+					})
+					.then((appointments) => appointments.length),
+
+				prisma.patient.count({
+					where: {
+						organizationId,
+						FinancialTransaction: {
+							some: {
+								type: "EXPENSE",
+								status: "PENDING",
+							},
+						},
+					},
+				}),
+			]);
+
+		const birthdaysThisMonth = allPatients.filter((patient) => {
+			if (patient.birthDate) {
+				const birthMonth = patient.birthDate.getMonth() + 1;
+				return birthMonth === currentMonth;
+			}
+			return false;
+		}).length;
+
+		return {
+			totalPatients,
+			birthdaysThisMonth,
+			recentlyAttended,
+			patientsWithDebts,
+		};
+	}),
 });
 
 // Rotas para Appointment
@@ -329,6 +386,77 @@ const appointmentRouter = router({
 				where: { id: input, organizationId },
 			});
 		}),
+
+	// Dentro do appointmentRouter, adicione a seguinte rota:
+
+	getCompletedAppointmentsLast6Months: protectedProcedure.query(
+		async ({ ctx }) => {
+			const organizationId = await getCurrentUserOrganizationId(ctx);
+			const endDate = new Date();
+			const startDate = new Date(endDate);
+			startDate.setMonth(startDate.getMonth() - 5);
+
+			const appointments = await prisma.appointment.groupBy({
+				by: ["consultationDate"],
+				where: {
+					organizationId,
+					status: "COMPLETED",
+					consultationDate: {
+						gte: startDate,
+						lte: endDate,
+					},
+				},
+				_count: {
+					id: true,
+				},
+			});
+
+			const monthNames = [
+				"Janeiro",
+				"Fevereiro",
+				"Março",
+				"Abril",
+				"Maio",
+				"Junho",
+				"Julho",
+				"Agosto",
+				"Setembro",
+				"Outubro",
+				"Novembro",
+				"Dezembro",
+			];
+
+			const result = new Array(6)
+				.fill(null)
+				.map((_, index) => {
+					const date = new Date(endDate);
+					date.setMonth(date.getMonth() - index);
+					const month = date.getMonth();
+					const year = date.getFullYear();
+
+					const appointmentsInMonth = appointments.filter((a) => {
+						const appointmentDate = new Date(a.consultationDate);
+						return (
+							appointmentDate.getMonth() === month &&
+							appointmentDate.getFullYear() === year
+						);
+					});
+
+					const count = appointmentsInMonth.reduce(
+						(sum, a) => sum + a._count.id,
+						0,
+					);
+
+					return {
+						month: monthNames[month],
+						appointments: count,
+					};
+				})
+				.reverse();
+
+			return result;
+		},
+	),
 });
 
 // Rotas para AnamnesisTemplate
