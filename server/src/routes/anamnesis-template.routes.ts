@@ -1,12 +1,12 @@
-import { router, protectedProcedure, publicProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
 
-import { getCurrentUserOrganizationId } from "../utils/current-user-organization";
 import { z } from "zod";
+import { prisma } from "..";
+import { getCurrentUserOrganizationId } from "../utils/current-user-organization";
 import {
 	createAnamneseTemplate,
 	updateAnamneseTemplate,
 } from "../zod-types/schemas";
-import { prisma } from "..";
 
 export const anamnesisTemplateRouter = router({
 	create: protectedProcedure

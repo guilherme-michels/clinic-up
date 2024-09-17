@@ -1,10 +1,10 @@
-import { router, protectedProcedure } from "../trpc";
+import { protectedProcedure, router } from "../trpc";
 
 import { getCurrentUserOrganizationId } from "../utils/current-user-organization";
 
 import { prisma } from "..";
-import { createPatient, updatePatient } from "../zod-types/schemas";
 import { PatientSchema } from "../schemas";
+import { createPatient, updatePatient } from "../zod-types/schemas";
 
 export const patientRouter = router({
 	create: protectedProcedure

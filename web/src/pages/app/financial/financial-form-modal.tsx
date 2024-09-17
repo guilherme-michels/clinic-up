@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import {
-	createFinancialTransaction,
 	type FinancialTransactionFormSchema,
+	createFinancialTransaction,
 } from "../../../../../server/src/zod-types/schemas";
-import { useState } from "react";
 
 import { FormDatePicker } from "@/components/date-picker";
 import { FormInput } from "@/components/form-input";
@@ -21,9 +21,9 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 
-import { toast } from "sonner";
 import { trpc } from "@/App";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 import type { FinancialTransaction } from "../../../../../server/src/schemas";
 
 interface FinancialFormModalProps {

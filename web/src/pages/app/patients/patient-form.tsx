@@ -1,17 +1,17 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FormInput } from "@/components/form-input";
-import { Button } from "@/components/ui/button";
 import { trpc } from "@/App";
-import { toast } from "sonner";
+import { FormInput } from "@/components/form-input";
 import { FormSelect } from "@/components/form-select";
-import {
-	createPatient,
-	type PatientFormSchema,
-} from "../../../../../server/src/zod-types/schemas";
+import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format, isValid, parse } from "date-fns";
 import { useEffect } from "react";
-import { format, parse, isValid } from "date-fns";
+import { useForm } from "react-hook-form";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+import {
+	type PatientFormSchema,
+	createPatient,
+} from "../../../../../server/src/zod-types/schemas";
 
 export function PatientForm() {
 	const { id } = useParams<{ id: string }>();

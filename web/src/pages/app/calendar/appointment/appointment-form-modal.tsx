@@ -20,9 +20,9 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 
+import { trpc } from "@/App";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { trpc } from "@/App";
 
 interface AppointmentFormModalProps {
 	isOpened: boolean;

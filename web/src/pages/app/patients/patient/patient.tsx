@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { Outlet, useLocation, useParams } from "react-router-dom";
-import { PatientTabs } from "./patient-tabs";
 import { PatientAbout } from "./patient-about";
+import { PatientTabs } from "./patient-tabs";
 
 export function Patient() {
 	const location = useLocation();

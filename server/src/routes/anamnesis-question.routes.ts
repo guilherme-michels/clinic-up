@@ -1,10 +1,10 @@
-import { router, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import { protectedProcedure, router } from "../trpc";
 import {
 	createAnamneseQuestion,
 	updateAnamneseQuestion,
 } from "../zod-types/schemas";
-import { z } from "zod";
 
 export const anamnesisQuestionRouter = router({
 	create: protectedProcedure

@@ -1,8 +1,8 @@
-import { router, publicProcedure } from "../trpc";
+import { publicProcedure, router } from "../trpc";
 
 import { prisma } from "..";
-import { createUser, updateUser } from "../zod-types/schemas";
 import { PatientSchema, UserSchema } from "../schemas";
+import { createUser, updateUser } from "../zod-types/schemas";
 
 export const userRouter = router({
 	create: publicProcedure.input(createUser).mutation(async ({ input }) => {

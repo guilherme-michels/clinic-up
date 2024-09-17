@@ -1,6 +1,6 @@
 import { trpc } from "@/App";
 import type React from "react";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextData {
 	user: User | null;

@@ -1,11 +1,11 @@
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { ClinicTabs } from "./clinic-tabs";
 import { Outlet, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { ClinicForm } from "./clinic-form/clinic-form";
+import { ClinicTabs } from "./clinic-tabs";
 
 export function Clinic() {
 	const location = useLocation();

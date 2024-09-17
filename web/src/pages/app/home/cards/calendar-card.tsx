@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
-import { Calendar, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HomeCardSkeleton } from "./home-card-skeleton";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { truncateText } from "@/utils";
+import { Calendar, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { HomeCardSkeleton } from "./home-card-skeleton";
 
 // Dados simulados de compromissos
 const upcomingAppointments = [

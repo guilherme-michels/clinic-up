@@ -1,31 +1,15 @@
-import { useState } from "react";
+import { trpc } from "@/App";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-	Users,
+	AlertCircle,
 	Cake,
 	Calendar,
-	AlertCircle,
 	ChevronRight,
+	Users,
 	Users2,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HomeCardSkeleton } from "./home-card-skeleton";
-import { Button } from "@/components/ui/button";
-import { trpc } from "@/App";
-
-interface PatientStats {
-	totalPatients: number;
-	birthdaysThisMonth: number;
-	patientsLastSixMonths: number;
-	patientsWithOverdueDebts: number;
-}
-
-// Dados simulados
-const patientStats: PatientStats = {
-	totalPatients: 1250,
-	birthdaysThisMonth: 15,
-	patientsLastSixMonths: 780,
-	patientsWithOverdueDebts: 23,
-};
 
 interface StatItemProps {
 	icon: React.ReactNode;

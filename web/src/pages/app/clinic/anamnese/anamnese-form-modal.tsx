@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { trpc } from "@/App";
 import { FormInput } from "@/components/form-input";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,16 +6,16 @@ import {
 	DialogContent,
 	DialogDescription,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { trpc } from "@/App";
 import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-import {
-	type AnamneseTemplateForm,
-	anamneseTemplateSchema,
-} from "../../../../../../server/src/zod-types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import {
+	type AnamneseTemplateFormSchema,
+	anamneseTemplateSchema,
+} from "../../../../../../server/src/zod-types/schemas";
 
 interface AnamneseFormModalProps {
 	isOpened: boolean;
@@ -35,7 +35,7 @@ export function AnamneseFormModal({
 			enabled: !!anamneseId,
 		});
 
-	const { control, handleSubmit, reset } = useForm<AnamneseTemplateForm>({
+	const { control, handleSubmit, reset } = useForm<AnamneseTemplateFormSchema>({
 		resolver: zodResolver(anamneseTemplateSchema),
 		defaultValues: {
 			title: "",
@@ -81,7 +81,7 @@ export function AnamneseFormModal({
 		}
 	}, [anamneseData, reset]);
 
-	const onSubmit = async (data: AnamneseTemplateForm) => {
+	const onSubmit = async (data: AnamneseTemplateFormSchema) => {
 		if (anamneseId) {
 			const updateData = {
 				id: anamneseId,

@@ -1,20 +1,20 @@
-import { Helmet } from "react-helmet-async";
 import {
 	Calendar as BigCalendar,
-	dayjsLocalizer,
 	type View,
+	dayjsLocalizer,
 } from "react-big-calendar";
+import { Helmet } from "react-helmet-async";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Button } from "@/components/ui/button";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { AppointmentFormModal } from "./appointment/appointment-form-modal";
-import dayjs from "dayjs";
 import "./calendar.css";
+import { trpc } from "@/App";
 import { useTheme } from "@/components/theme/theme-provider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, ArrowRight, CalendarCheck2 } from "lucide-react";
 import { CalendarHeaderCard } from "./cards/calendar-header-card";
-import { trpc } from "@/App";
 
 const localizer = dayjsLocalizer(dayjs);
 

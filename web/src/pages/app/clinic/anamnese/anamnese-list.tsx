@@ -2,10 +2,10 @@ import { useState } from "react";
 
 import {
 	ChevronDown,
+	Edit,
+	Eye,
 	MoreHorizontal,
 	SlidersHorizontal,
-	Eye,
-	Edit,
 } from "lucide-react";
 
 import {
@@ -31,6 +31,8 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { trpc } from "@/App";
+import { Input } from "@/components/ui/input";
 import {
 	Table,
 	TableBody,
@@ -39,12 +41,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { trpc } from "@/App";
-import type { AnamnesisTemplate } from "../../../../../../server/src/schemas";
-import { AnamneseModal } from "./anamnese-modal";
 import { truncateText } from "@/utils";
+import type { AnamnesisTemplate } from "../../../../../../server/src/schemas";
 import { AnamneseFormModal } from "./anamnese-form-modal";
-import { Input } from "@/components/ui/input";
+import { AnamneseModal } from "./anamnese-modal";
 
 export function AnamneseList() {
 	const [sorting, setSorting] = useState<SortingState>([]);

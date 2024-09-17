@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { SmilePlus, Frown, Star, MessageCircle } from "lucide-react";
 import {
 	Card,
 	CardContent,
@@ -7,17 +5,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Frown, MessageCircle, SmilePlus, Star } from "lucide-react";
+import { useEffect, useState } from "react";
 import { HomeCardSkeleton } from "./home-card-skeleton";
 
-import {
-	Label,
-	PolarAngleAxis,
-	PolarGrid,
-	PolarRadiusAxis,
-	RadialBar,
-	RadialBarChart,
-} from "recharts";
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { PolarGrid, RadialBar, RadialBarChart } from "recharts";
 
 interface SatisfactionStats {
 	overallScore: number;

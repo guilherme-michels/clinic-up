@@ -1,13 +1,13 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { trpc } from "@/App";
 import { FormInput } from "@/components/form-input";
 import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { trpc } from "@/App";
 import {
-	createOrganization,
 	type OrganizationFormSchema,
+	createOrganization,
 } from "../../../../../../server/src/zod-types/schemas";
 
 interface ClinicFormProps {

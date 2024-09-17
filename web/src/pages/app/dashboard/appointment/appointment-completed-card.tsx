@@ -1,5 +1,6 @@
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
+import { trpc } from "@/App";
 import {
 	Card,
 	CardContent,
@@ -13,7 +14,6 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import { trpc } from "@/App";
 
 export const description = "Gráfico de barras de atendimentos realizados";
 

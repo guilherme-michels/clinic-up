@@ -1,7 +1,4 @@
-import { Helmet } from "react-helmet-async";
-import { DashboardTabs } from "./dashboard-tabs";
-import { AppointmentDashboard } from "./appointment/appointment-dashboard";
-import { Outlet, useLocation } from "react-router-dom";
+import { DatePickerWithRange } from "@/components/date-range-picker";
 import {
 	Select,
 	SelectContent,
@@ -9,7 +6,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { DatePickerWithRange } from "@/components/date-range-picker";
+import { Helmet } from "react-helmet-async";
+import { Outlet, useLocation } from "react-router-dom";
+import { AppointmentDashboard } from "./appointment/appointment-dashboard";
+import { DashboardTabs } from "./dashboard-tabs";
 
 export function Dashboard() {
 	const location = useLocation();

@@ -11,9 +11,9 @@ export function ErrorPage() {
 			</p>
 			<pre>{error?.message || JSON.stringify(error)}</pre>
 			<p className="text-accent-foreground">
-				Voltar para o{" "}
+				Voltar para a{" "}
 				<Link to="/" className="text-sky-600 dark:text-sky-400">
-					Dashboard
+					Página inicial
 				</Link>
 			</p>
 		</div>

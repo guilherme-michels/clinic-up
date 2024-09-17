@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { DollarSign, TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface FinancialStats {
 	totalRevenue: number;

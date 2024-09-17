@@ -1,9 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { CalendarCard } from "./cards/calendar-card";
-import { PatientCard } from "./cards/patient-card";
-import { FinancialCard } from "./cards/financial-card";
-import { CustomerSatisfactionCard } from "./cards/customer-satisfaction-card";
 import { ClinicGoalsCard } from "./cards/clinic-goals-card";
+import { CustomerSatisfactionCard } from "./cards/customer-satisfaction-card";
+import { FinancialCard } from "./cards/financial-card";
+import { PatientCard } from "./cards/patient-card";
 
 export function Home() {
 	return (

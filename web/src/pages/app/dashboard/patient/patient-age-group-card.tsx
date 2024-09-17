@@ -3,9 +3,9 @@ import {
 	BarChart,
 	CartesianGrid,
 	LabelList,
+	ResponsiveContainer,
 	XAxis,
 	YAxis,
-	ResponsiveContainer,
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

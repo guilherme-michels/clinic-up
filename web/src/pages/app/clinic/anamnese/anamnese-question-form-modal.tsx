@@ -1,14 +1,7 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FormInput } from "@/components/form-input";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { trpc } from "@/App";
+import { FormInput } from "@/components/form-input";
 import { FormSelect } from "@/components/form-select";
-import {
-	type AnamneseQuestionForm,
-	anamneseQuestionSchema,
-} from "../../../../../../server/src/zod-types/schemas";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -16,11 +9,18 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import {
+	type AnamneseQuestionFormSchema,
+	anamneseQuestionSchema,
+} from "../../../../../../server/src/zod-types/schemas";
 
 interface AnamneseQuestionFormModalProps {
 	isOpened: boolean;
 	onClose: () => void;
-	onSave: (data: AnamneseQuestionForm) => void;
+	onSave: (data: AnamneseQuestionFormSchema) => void;
 	anamneseId: string;
 }
 
@@ -52,7 +52,7 @@ export function AnamneseQuestionFormModal({
 		},
 	});
 
-	const { control, handleSubmit, reset } = useForm<AnamneseQuestionForm>({
+	const { control, handleSubmit, reset } = useForm<AnamneseQuestionFormSchema>({
 		resolver: zodResolver(anamneseQuestionSchema),
 		defaultValues: {
 			question: "",
@@ -60,7 +60,7 @@ export function AnamneseQuestionFormModal({
 		},
 	});
 
-	const onSubmit = (data: AnamneseQuestionForm) => {
+	const onSubmit = (data: AnamneseQuestionFormSchema) => {
 		createQuestion.mutate({ ...data, templateId: anamneseId });
 		onSave(data);
 	};

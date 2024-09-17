@@ -1,9 +1,9 @@
-import { router, publicProcedure, protectedProcedure } from "../trpc";
-import { prisma } from "..";
 import { TRPCError } from "@trpc/server";
-import { createOrganization, updateOrganization } from "../zod-types/schemas";
-import { getCurrentUserOrganizationId } from "../utils/current-user-organization";
+import { prisma } from "..";
 import { OrganizationSchema } from "../schemas";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
+import { getCurrentUserOrganizationId } from "../utils/current-user-organization";
+import { createOrganization, updateOrganization } from "../zod-types/schemas";
 
 export const organizationRouter = router({
 	create: publicProcedure

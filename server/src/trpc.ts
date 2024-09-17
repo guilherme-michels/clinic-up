@@ -1,7 +1,7 @@
-import { initTRPC, TRPCError } from "@trpc/server";
+import { PrismaClient } from "@prisma/client";
+import { TRPCError, initTRPC } from "@trpc/server";
 import type { inferAsyncReturnType } from "@trpc/server";
 import type { CreateHTTPContextOptions } from "@trpc/server/adapters/standalone";
-import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();

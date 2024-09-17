@@ -1,6 +1,6 @@
+import { Developing } from "@/components/developing";
 import { Helmet } from "react-helmet-async";
 import { SettingsTabs } from "./settings-tabs";
-import { Developing } from "@/components/developing";
 
 export function Settings() {
 	return (

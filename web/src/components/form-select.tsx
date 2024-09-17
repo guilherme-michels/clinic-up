@@ -1,6 +1,7 @@
+import { cn } from "@/lib/utils";
 import {
-	Controller,
 	type Control,
+	Controller,
 	type FieldValues,
 	type Path,
 } from "react-hook-form";
@@ -11,7 +12,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "./ui/select";
-import { cn } from "@/lib/utils";
 
 interface FormSelectProps<T extends FieldValues> {
 	control: Control<T>;

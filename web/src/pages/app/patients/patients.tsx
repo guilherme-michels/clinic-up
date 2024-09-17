@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
-import { PatientListWeb } from "./patient-list/patient-list-web";
-import { PatientListMobile } from "./patient-list/patient-list-mobile";
 import { Outlet, useLocation } from "react-router-dom";
+import { PatientListMobile } from "./patient-list/patient-list-mobile";
+import { PatientListWeb } from "./patient-list/patient-list-web";
 import { PatientsTabs } from "./patients-tabs";
 
 export function Patients() {

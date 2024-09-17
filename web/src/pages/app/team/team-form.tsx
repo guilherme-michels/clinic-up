@@ -1,10 +1,10 @@
-import { Link, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { type Patient, PatientSchema } from "../../../../../server/src/schemas";
 import { FormInput } from "@/components/form-input";
 import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useParams } from "react-router-dom";
+import { type Patient, PatientSchema } from "../../../../../server/src/schemas";
 
 export function TeamForm() {
 	const { id } = useParams<{ id: string }>();
@@ -17,7 +17,6 @@ export function TeamForm() {
 			email: null,
 			phone: null,
 			birthDate: new Date(),
-			address: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			organizationId: "",
@@ -46,10 +45,14 @@ export function TeamForm() {
 		<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 			<div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
 				<FormInput control={control} name="name" label="Nome" required />
-				<FormInput control={control} name="email" label="E-mail" type="email" />
-				<FormInput control={control} name="phone" label="Telefone" />
-
-				<FormInput control={control} name="address" label="Endereço" />
+				<FormInput
+					control={control}
+					name="email"
+					label="E-mail"
+					type="email"
+					required
+				/>
+				<FormInput control={control} name="phone" label="Telefone" required />
 			</div>
 
 			<div className="flex justify-end space-x-2">
@@ -75,7 +78,6 @@ async function fetchTeamMember(id: string): Promise<Patient> {
 				email: "exemplo@email.com",
 				phone: "123456789",
 				birthDate: new Date(),
-				address: "Rua Exemplo, 123",
 				createdAt: new Date(),
 				updatedAt: new Date(),
 				organizationId: "org123",

@@ -1,13 +1,13 @@
+import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 import {
 	type Control,
 	Controller,
 	type FieldValues,
 	type Path,
 } from "react-hook-form";
-import { Input, type InputProps } from "./ui/input";
 import InputMask from "react-input-mask";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { Input, type InputProps } from "./ui/input";
 
 type FormInputProps<T extends FieldValues> = InputProps & {
 	control: Control<T>;

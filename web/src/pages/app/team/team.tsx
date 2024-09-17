@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
-import { TeamListWeb } from "./team-list/team-list-web";
 import { Outlet, useLocation } from "react-router-dom";
 import { TeamListMobile } from "./team-list/team-list-mobile";
+import { TeamListWeb } from "./team-list/team-list-web";
 import { TeamTabs } from "./team-tabs";
 
 export function Team() {

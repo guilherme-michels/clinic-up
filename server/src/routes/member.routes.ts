@@ -1,8 +1,8 @@
-import { router, protectedProcedure, publicProcedure } from "../trpc";
-import { createMember, updateMember } from "../zod-types/schemas";
-import { getCurrentUserOrganizationId } from "../utils/current-user-organization";
 import { prisma } from "..";
 import { MemberSchema } from "../schemas";
+import { protectedProcedure, publicProcedure, router } from "../trpc";
+import { getCurrentUserOrganizationId } from "../utils/current-user-organization";
+import { createMember, updateMember } from "../zod-types/schemas";
 
 export const memberRouter = router({
 	create: publicProcedure.input(createMember).mutation(async ({ input }) => {

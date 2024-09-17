@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { AlertCircle, Calendar, CheckCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle, Calendar, CheckCircle, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
 import { CalendarCardSkeleton } from "./calendar-card-skeleton";
 
 interface AgendaStats {

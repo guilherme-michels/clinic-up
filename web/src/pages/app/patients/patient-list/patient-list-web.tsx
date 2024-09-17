@@ -1,4 +1,4 @@
-import * as React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -12,9 +12,10 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, MoreHorizontal, SlidersHorizontal } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import * as React from "react";
 import { Link } from "react-router-dom";
 
+import { trpc } from "@/App";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -34,7 +35,6 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import type { Patient } from "../../../../../../server/src/schemas";
-import { trpc } from "@/App";
 
 export const columns: ColumnDef<Patient>[] = [
 	{

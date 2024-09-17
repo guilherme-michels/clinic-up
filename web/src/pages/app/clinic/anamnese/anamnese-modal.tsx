@@ -1,29 +1,29 @@
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogDescription,
-} from "@/components/ui/dialog";
 import { trpc } from "@/App";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { AlignJustify, MoreHorizontal } from "lucide-react";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { QuestionTypeType } from "../../../../../../server/src/schemas";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AlignJustify, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
+import type { QuestionTypeType } from "../../../../../../server/src/schemas";
 import { AnamneseQuestionFormModal } from "./anamnese-question-form-modal";
 
 interface AnamneseModalProps {

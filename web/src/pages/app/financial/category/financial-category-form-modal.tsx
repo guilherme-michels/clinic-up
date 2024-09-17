@@ -18,8 +18,8 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 
-import { toast } from "sonner";
 import { trpc } from "@/App";
+import { toast } from "sonner";
 
 interface FinancialCategoryFormModalProps {
 	isOpened: boolean;

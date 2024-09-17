@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
-import { middleware, publicProcedure } from "../trpc";
 import jwt from "jsonwebtoken";
+import { middleware, publicProcedure } from "../trpc";
 
 export const authMiddleware = middleware(async ({ ctx, next }) => {
 	const token = ctx.req.headers.authorization;
