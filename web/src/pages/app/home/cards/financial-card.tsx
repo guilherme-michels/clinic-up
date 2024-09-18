@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { DollarSign, TrendingUp, TrendingDown, Clock } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HomeCardSkeleton } from "./home-card-skeleton";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { HomeCardSkeleton } from "./home-card-skeleton";
 
 interface FinancialStats {
 	totalRevenue: number;
@@ -103,12 +103,12 @@ export function FinancialCard() {
 							lineColor="bg-emerald-500"
 						/>
 						<StatItem
-							icon={<TrendingDown className="h-4 w-4 text-rose-500" />}
+							icon={<TrendingDown className="h-4 w-4 text-red-500" />}
 							label="Despesas Totais"
 							value={stats.totalExpenses}
 							subLabel="A pagar"
 							subValue={stats.toPay}
-							lineColor="bg-rose-500"
+							lineColor="bg-red-500"
 						/>
 						<StatItem
 							icon={<DollarSign className="h-4 w-4 text-blue-500" />}

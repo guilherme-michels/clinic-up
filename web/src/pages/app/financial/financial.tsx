@@ -5,6 +5,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { FinancialFormModal } from "./financial-form-modal";
 import { FinancialListWeb } from "./financial-list-web";
 import { FinancialTabs } from "./financial-tabs";
+import { FinancialHeader } from "./header/financial-header";
 
 export function Financial() {
 	const location = useLocation();
@@ -27,6 +28,8 @@ export function Financial() {
 						<DatePickerWithRange />
 					</div>
 				</div>
+
+				<FinancialHeader />
 
 				{isFinancialList ? (
 					<FinancialListWeb

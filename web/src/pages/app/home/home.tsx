@@ -4,6 +4,7 @@ import { ClinicGoalsCard } from "./cards/clinic-goals-card";
 import { CustomerSatisfactionCard } from "./cards/customer-satisfaction-card";
 import { FinancialCard } from "./cards/financial-card";
 import { PatientCard } from "./cards/patient-card";
+import { ScheduledReturns } from "./cards/schedule-returns";
 
 export function Home() {
 	return (
@@ -24,6 +25,7 @@ export function Home() {
 
 					<CustomerSatisfactionCard />
 					<ClinicGoalsCard />
+					<ScheduledReturns />
 				</div>
 			</div>
 		</>

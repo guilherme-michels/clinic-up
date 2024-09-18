@@ -112,16 +112,27 @@ export const Sidebar: React.FC = () => {
 		},
 	];
 
+	// Separar o último item (Configurações) do resto do menu
+	const settingsItem = menuItems.pop();
+
 	return (
 		<aside className="fixed inset-y-0 left-0 hidden xl:w-48 w-44 flex-col border-r bg-mesBlue sm:flex z-0 mt-16">
-			<nav className="flex flex-col items-center gap-1 sm:py-5 px-2">
-				{menuItems.map((item) => (
+			<nav className="flex flex-col items-center gap-1 sm:py-5 px-2 h-full justify-between">
+				<div className="w-full h-full">
+					{menuItems.map((item) => (
+						<TooltipItem
+							key={item.name}
+							{...item}
+							isActive={location.pathname.startsWith(item.link)}
+						/>
+					))}
+				</div>
+				{settingsItem && (
 					<TooltipItem
-						key={item.name}
-						{...item}
-						isActive={location.pathname.startsWith(item.link)}
+						{...settingsItem}
+						isActive={location.pathname.startsWith(settingsItem.link)}
 					/>
-				))}
+				)}
 			</nav>
 		</aside>
 	);
